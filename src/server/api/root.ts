@@ -1,4 +1,6 @@
-import { postRouter } from '@/server/api/routers/post'
+import { discord_router } from '@/server/api/routers/discord'
+import { history_router } from '@/server/api/routers/history'
+import { leaderboard_router } from '@/server/api/routers/leaderboard'
 import { createCallerFactory, createTRPCRouter } from '@/server/api/trpc'
 
 /**
@@ -7,7 +9,9 @@ import { createCallerFactory, createTRPCRouter } from '@/server/api/trpc'
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  post: postRouter,
+  history: history_router,
+  discord: discord_router,
+  leaderboard: leaderboard_router,
 })
 
 // export type definition of API

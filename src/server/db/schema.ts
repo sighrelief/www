@@ -1,39 +1,44 @@
 import { relations, sql } from 'drizzle-orm'
-import { index, pgTableCreator, primaryKey } from 'drizzle-orm/pg-core'
+import {
+  boolean,
+  index,
+  integer,
+  json,
+  pgTable,
+  primaryKey,
+  real,
+  text,
+  timestamp,
+  uniqueIndex,
+} from 'drizzle-orm/pg-core'
 import type { AdapterAccount } from 'next-auth/adapters'
 
-/**
- * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
- * database instance for multiple projects.
- *
- * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
- */
-export const createTable = pgTableCreator(
-  (name) => `balatro-stats-next_${name}`
+export const raw_history = pgTable(
+  'raw_history',
+  {
+    id: integer('id').primaryKey().generatedByDefaultAsIdentity(),
+    game_num: integer('game_num').notNull(),
+    entry: json(),
+  },
+  (t) => [uniqueIndex('game_num_unique_idx').on(t.game_num)]
 )
 
-export const posts = createTable(
-  'post',
-  (d) => ({
-    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
-    name: d.varchar({ length: 256 }),
-    createdById: d
-      .varchar({ length: 255 })
-      .notNull()
-      .references(() => users.id),
-    createdAt: d
-      .timestamp({ withTimezone: true })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
-  }),
-  (t) => [
-    index('created_by_idx').on(t.createdById),
-    index('name_idx').on(t.name),
-  ]
-)
+export const player_games = pgTable('player_games', {
+  playerId: text('player_id').notNull(),
+  playerName: text('player_name').notNull(),
+  gameId: integer('game_id').notNull(),
+  gameTime: timestamp('game_time').notNull(),
+  gameType: text('game_type').notNull(),
+  gameNum: integer('game_num').notNull(),
+  playerMmr: real('player_mmr').notNull(),
+  mmrChange: real('mmr_change').notNull(),
+  opponentId: text('opponent_id').notNull(),
+  opponentName: text('opponent_name').notNull(),
+  opponentMmr: real('opponent_mmr').notNull(),
+  result: text('result').notNull(),
+})
 
-export const users = createTable('user', (d) => ({
+export const users = pgTable('user', (d) => ({
   id: d
     .varchar({ length: 255 })
     .notNull()
@@ -54,7 +59,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
 }))
 
-export const accounts = createTable(
+export const accounts = pgTable(
   'account',
   (d) => ({
     userId: d
@@ -82,7 +87,7 @@ export const accountsRelations = relations(accounts, ({ one }) => ({
   user: one(users, { fields: [accounts.userId], references: [users.id] }),
 }))
 
-export const sessions = createTable(
+export const sessions = pgTable(
   'session',
   (d) => ({
     sessionToken: d.varchar({ length: 255 }).notNull().primaryKey(),
@@ -99,7 +104,7 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, { fields: [sessions.userId], references: [users.id] }),
 }))
 
-export const verificationTokens = createTable(
+export const verificationTokens = pgTable(
   'verification_token',
   (d) => ({
     identifier: d.varchar({ length: 255 }).notNull(),
