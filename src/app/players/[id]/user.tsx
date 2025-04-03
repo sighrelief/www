@@ -186,8 +186,8 @@ export function UserInfo() {
                     >
                       <Star className='mr-1 h-3 w-3' />
                       Vanilla Queue:{' '}
-                      {isNonNullish(vanillaLeaderboard?.rank)
-                        ? `#${vanillaLeaderboard.rank}`
+                      {isNonNullish(vanillaUserRank?.rank)
+                        ? `#${vanillaUserRank.rank}`
                         : 'N/A'}
                     </Badge>
                   )}
@@ -451,7 +451,7 @@ export function UserInfo() {
                   {(rankedLeaderboard || lastGameLeaderboard1) && (
                     <LeaderboardStatsCard
                       title='Leaderboard 1 Stats'
-                      rank={rankedLeaderboard?.rank}
+                      rank={rankedUserRank?.rank}
                       mmr={
                         lastGameLeaderboard1
                           ? Math.trunc(
@@ -468,7 +468,7 @@ export function UserInfo() {
                   {(vanillaLeaderboard || lastGameLeaderboard2) && (
                     <LeaderboardStatsCard
                       title='Leaderboard 2 Stats'
-                      rank={vanillaLeaderboard?.rank}
+                      rank={vanillaUserRank?.rank}
                       mmr={
                         lastGameLeaderboard2
                           ? Math.trunc(

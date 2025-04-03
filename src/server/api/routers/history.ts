@@ -107,8 +107,5 @@ export async function insertGameHistory(entries: any[]) {
     return processGameEntry(id, game_num, entry)
   })
 
-  await db.insert(player_games).values(playerGameRows).onConflictDoUpdate({
-    target: player_games.gameNum,
-    set: {},
-  })
+  await db.insert(player_games).values(playerGameRows).onConflictDoNothing()
 }
