@@ -16,14 +16,12 @@ export default async function Home() {
     }),
   ])
   if (session?.user) {
-    console.log('user', session.user)
-    // void api.post.getLatest.prefetch()
   }
 
   return (
     <HydrateClient>
       <Suspense>
-        <UserStats />
+        {/*<UserStats/>*/}
         <LeaderboardPage />
       </Suspense>
     </HydrateClient>

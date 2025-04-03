@@ -450,7 +450,7 @@ export function UserInfo() {
                 <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
                   {(rankedLeaderboard || lastGameLeaderboard1) && (
                     <LeaderboardStatsCard
-                      title='Leaderboard 1 Stats'
+                      title='Ranked Queue Stats'
                       rank={rankedUserRank?.rank}
                       mmr={
                         lastGameLeaderboard1
@@ -467,7 +467,7 @@ export function UserInfo() {
 
                   {(vanillaLeaderboard || lastGameLeaderboard2) && (
                     <LeaderboardStatsCard
-                      title='Leaderboard 2 Stats'
+                      title='Vanilla Queue Stats'
                       rank={vanillaUserRank?.rank}
                       mmr={
                         lastGameLeaderboard2
