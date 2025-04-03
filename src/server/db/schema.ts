@@ -1,6 +1,5 @@
 import { relations, sql } from 'drizzle-orm'
 import {
-  boolean,
   index,
   integer,
   json,
@@ -22,21 +21,31 @@ export const raw_history = pgTable(
   },
   (t) => [uniqueIndex('game_num_unique_idx').on(t.game_num)]
 )
-
-export const player_games = pgTable('player_games', {
-  playerId: text('player_id').notNull(),
-  playerName: text('player_name').notNull(),
-  gameId: integer('game_id').notNull(),
-  gameTime: timestamp('game_time').notNull(),
-  gameType: text('game_type').notNull(),
-  gameNum: integer('game_num').notNull(),
-  playerMmr: real('player_mmr').notNull(),
-  mmrChange: real('mmr_change').notNull(),
-  opponentId: text('opponent_id').notNull(),
-  opponentName: text('opponent_name').notNull(),
-  opponentMmr: real('opponent_mmr').notNull(),
-  result: text('result').notNull(),
+export const metadata = pgTable('metadata', {
+  key: text('key').primaryKey().notNull(),
+  value: text('value').notNull(),
 })
+export const player_games = pgTable(
+  'player_games',
+  {
+    playerId: text('player_id').notNull(),
+    playerName: text('player_name').notNull(),
+    gameId: integer('game_id').notNull(),
+    gameTime: timestamp('game_time').notNull(),
+    gameType: text('game_type').notNull(),
+    gameNum: integer('game_num').notNull(),
+    playerMmr: real('player_mmr').notNull(),
+    mmrChange: real('mmr_change').notNull(),
+    opponentId: text('opponent_id').notNull(),
+    opponentName: text('opponent_name').notNull(),
+    opponentMmr: real('opponent_mmr').notNull(),
+    result: text('result').notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.playerId, t.gameNum] }),
+    uniqueIndex('game_num_per_player_idx').on(t.playerId, t.gameNum),
+  ]
+)
 
 export const users = pgTable('user', (d) => ({
   id: d

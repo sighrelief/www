@@ -12,6 +12,7 @@ export const env = createEnv({
         ? z.string()
         : z.string().optional(),
     AUTH_DISCORD_ID: z.string(),
+    CRON_SECRET: z.string(),
     AUTH_DISCORD_SECRET: z.string(),
     DISCORD_BOT_TOKEN: z.string(),
     DATABASE_URL: z.string().url(),
@@ -42,6 +43,7 @@ export const env = createEnv({
     DISCORD_BOT_TOKEN: process.env.DISCORD_BOT_TOKEN,
     REDIS_URL: process.env.REDIS_URL,
     NODE_ENV: process.env.NODE_ENV,
+    CRON_SECRET: process.env.CRON_SECRET,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

@@ -1,7 +1,9 @@
 import { createTRPCRouter, publicProcedure } from '@/server/api/trpc'
 import { db } from '@/server/db'
-import { player_games, raw_history } from '@/server/db/schema'
+import { metadata, player_games, raw_history } from '@/server/db/schema'
 import { desc, eq } from 'drizzle-orm'
+import ky from 'ky'
+import { chunk } from 'remeda'
 import { z } from 'zod'
 
 export const history_router = createTRPCRouter({
@@ -12,25 +14,68 @@ export const history_router = createTRPCRouter({
       })
     )
     .query(async ({ ctx, input }) => {
-      const entries = await ctx.db
+      return await ctx.db
         .select()
         .from(player_games)
         .where(eq(player_games.playerId, input.user_id))
         .orderBy(desc(player_games.gameNum))
-      return entries
     }),
   sync: publicProcedure.mutation(async () => {
-    await db.delete(raw_history).execute()
-    await db.delete(player_games).execute()
-    // const chunkedData = chunk(data, 100)
-    // for (const chunk of chunkedData) {
-    //   await insertGameHistory(chunk).catch((e) => {
-    //     console.error(e)
-    //   })
-    // }
-    // return data
+    return syncHistory()
   }),
 })
+
+export async function syncHistory() {
+  const cursor = await db
+    .select()
+    .from(metadata)
+    .where(eq(metadata.key, 'history_cursor'))
+    .limit(1)
+    .then((res) => res[0])
+  console.log('cursor', cursor)
+  const data = await ky
+    .get('https://api.neatqueue.com/api/history/1226193436521267223', {
+      searchParams: {
+        start_game_number: cursor?.value ?? 1,
+      },
+      timeout: 60000,
+    })
+    .json<any>()
+  const matches = await fetch(
+    'https://api.neatqueue.com/api/matches/1226193436521267223'
+  ).then((res) => res.json())
+  const firstGame = Object.keys(matches).sort(
+    (a, b) => Number.parseInt(a) - Number.parseInt(b)
+  )[0]
+  if (!firstGame) {
+    throw new Error('No first game found')
+  }
+
+  await db
+    .insert(metadata)
+    .values({
+      key: 'history_cursor',
+      value: firstGame,
+    })
+    .onConflictDoUpdate({
+      target: metadata.key,
+      set: {
+        key: 'history_cursor',
+        value: firstGame,
+      },
+    })
+  console.log('matches', matches)
+  console.log('firstGame', firstGame)
+  console.log('data', data)
+
+  const chunkedData = chunk(data.data, 100)
+  for (const chunk of chunkedData) {
+    await insertGameHistory(chunk).catch((e) => {
+      console.error(e)
+    })
+  }
+  return data
+}
 
 function processGameEntry(gameId: number, game_num: number, entry: any) {
   const parsedEntry = typeof entry === 'string' ? JSON.parse(entry) : entry
@@ -98,14 +143,36 @@ function processGameEntry(gameId: number, game_num: number, entry: any) {
   ]
 }
 export async function insertGameHistory(entries: any[]) {
-  const rawResults = await db
-    .insert(raw_history)
-    .values(entries.map((entry) => ({ entry, game_num: entry.game_num })))
-    .returning()
+  const rawResults = await Promise.all(
+    entries.map(async (entry) => {
+      return db
+        .insert(raw_history)
+        .values({ entry, game_num: entry.game_num })
+        .returning()
+        .onConflictDoUpdate({
+          target: raw_history.game_num,
+          set: {
+            entry,
+          },
+        })
+        .then((res) => res[0])
+    })
+  ).then((res) => res.filter(Boolean))
 
-  const playerGameRows = rawResults.flatMap(({ entry, id, game_num }) => {
+  const playerGameRows = rawResults.flatMap(({ entry, id, game_num }: any) => {
     return processGameEntry(id, game_num, entry)
   })
 
-  await db.insert(player_games).values(playerGameRows).onConflictDoNothing()
+  await Promise.all(
+    playerGameRows.map(async (row) => {
+      return db
+        .insert(player_games)
+        .values(row)
+        .onConflictDoUpdate({
+          target: [player_games.playerId, player_games.gameNum],
+          set: row,
+        })
+        .then((res) => res[0])
+    })
+  )
 }
