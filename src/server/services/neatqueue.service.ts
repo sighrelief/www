@@ -4,10 +4,10 @@ const NEATQUEUE_URL = 'https://api.neatqueue.com/api'
 
 const instance = ky.create({
   prefixUrl: NEATQUEUE_URL,
-  timeout: 10000,
+  timeout: 60000,
 })
 
-const BMM_SERVER_ID = '1352157545547960350'
+const BMM_SERVER_ID = '1226193436521267223'
 
 export const neatqueue_service = {
   get_leaderboard: async (channel_id: string) => {
@@ -15,7 +15,7 @@ export const neatqueue_service = {
       `leaderboard/${BMM_SERVER_ID}/${channel_id}`
     )
 
-    return response.json()
+    return response.json<LeaderboardResponse>()
   },
   get_history: async (
     player_ids: string[],
@@ -30,4 +30,26 @@ export const neatqueue_service = {
       .json()
     return response
   },
+}
+export type Data = {
+  mmr: number
+  wins: number
+  losses: number
+  streak: number
+  totalgames: number
+  decay: number
+  ign?: any
+  peak_mmr: number
+  peak_streak: number
+  rank: number
+  winrate: number
+}
+
+export type LeaderboardEntry = {
+  id: string
+  data: Data
+  name: string
+}
+export type LeaderboardResponse = {
+  alltime: LeaderboardEntry[]
 }

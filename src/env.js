@@ -15,6 +15,7 @@ export const env = createEnv({
     AUTH_DISCORD_SECRET: z.string(),
     DISCORD_BOT_TOKEN: z.string(),
     DATABASE_URL: z.string().url(),
+    REDIS_URL: z.string().url(),
     NODE_ENV: z
       .enum(['development', 'test', 'production'])
       .default('development'),
@@ -39,6 +40,7 @@ export const env = createEnv({
     AUTH_DISCORD_SECRET: process.env.AUTH_DISCORD_SECRET,
     DATABASE_URL: process.env.DATABASE_URL,
     DISCORD_BOT_TOKEN: process.env.DISCORD_BOT_TOKEN,
+    REDIS_URL: process.env.REDIS_URL,
     NODE_ENV: process.env.NODE_ENV,
   },
   /**

@@ -23,7 +23,9 @@ import {
 } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
+import { RANKED_CHANNEL, VANILLA_CHANNEL } from '@/shared/constants'
 import { api } from '@/trpc/react'
+import { isNotNull } from 'drizzle-orm'
 import {
   ArrowDownCircle,
   ArrowUpCircle,
@@ -33,12 +35,13 @@ import {
   ChevronUp,
   Clock,
   Filter,
-  Medal,
   MinusCircle,
-  Users,
+  Star,
+  Trophy,
 } from 'lucide-react'
 import { useFormatter } from 'next-intl'
 import { useParams } from 'next/navigation'
+import { isNonNullish } from 'remeda'
 
 const numberFormatter = new Intl.NumberFormat('en-US', {
   signDisplay: 'exceptZero',
@@ -46,17 +49,59 @@ const numberFormatter = new Intl.NumberFormat('en-US', {
 const dateFormatter = new Intl.DateTimeFormat('en-US', {
   dateStyle: 'long',
 })
+
 export function UserInfo() {
   const format = useFormatter()
 
   const [filter, setFilter] = useState('all')
+  const [leaderboardFilter, setLeaderboardFilter] = useState('all')
   const { id } = useParams()
   if (!id || typeof id !== 'string') return null
 
-  const [games] = api.history.user_games.useSuspenseQuery({ user_id: id })
+  // Fetch games data unconditionally
+  const gamesQuery = api.history.user_games.useSuspenseQuery({ user_id: id })
+  const games = gamesQuery[0] || [] // Ensure games is always an array
+
   const [discord_user] = api.discord.get_user_by_id.useSuspenseQuery({
     user_id: id,
   })
+
+  // Mock data for the two leaderboards - replace with actual API calls
+  const [rankedLeaderboard] = api.leaderboard.get_leaderboard.useSuspenseQuery({
+    channel_id: RANKED_CHANNEL,
+  })
+  const [vanillaLeaderboard] = api.leaderboard.get_leaderboard.useSuspenseQuery(
+    {
+      channel_id: VANILLA_CHANNEL,
+    }
+  )
+  const [vanillaUserRank] = api.leaderboard.get_user_rank.useSuspenseQuery({
+    channel_id: VANILLA_CHANNEL,
+    user_id: id,
+  })
+  const [rankedUserRank] = api.leaderboard.get_user_rank.useSuspenseQuery({
+    channel_id: RANKED_CHANNEL,
+    user_id: id,
+  })
+
+  console.log(rankedLeaderboard, vanillaLeaderboard)
+
+  // Filter games by leaderboard if needed
+  const filteredGamesByLeaderboard =
+    leaderboardFilter === 'all'
+      ? games
+      : games.filter((game) => game.gameType === leaderboardFilter)
+
+  // Filter by result
+  const filteredGames =
+    filter === 'all'
+      ? filteredGamesByLeaderboard
+      : filter === 'wins'
+        ? filteredGamesByLeaderboard.filter((game) => game.result === 'win')
+        : filter === 'losses'
+          ? filteredGamesByLeaderboard.filter((game) => game.result === 'loss')
+          : filteredGamesByLeaderboard.filter((game) => game.result === 'tie')
+
   const games_played = games.length
   let wins = 0
   let losses = 0
@@ -70,6 +115,7 @@ export function UserInfo() {
       ties++
     }
   }
+
   const profileData = {
     username: discord_user.username,
     avatar: discord_user.avatar_url,
@@ -77,13 +123,20 @@ export function UserInfo() {
     wins,
     losses,
     ties,
-    winRate: Math.round((wins / games_played) * 100),
-    rank: 1,
+    winRate: games_played > 0 ? Math.round((wins / games_played) * 100) : 0,
   }
 
   const lastGame = games.at(0)
   const firstGame = games.at(-1)
-  console.log(lastGame)
+
+  // Get last games for each leaderboard
+  const lastGameLeaderboard1 = games
+    .filter((game) => game.gameType === 'ranked')
+    .at(0)
+  const lastGameLeaderboard2 = games
+    .filter((game) => game.gameType.toLowerCase() === 'vanilla')
+    .at(0)
+
   return (
     <div className='min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900'>
       <div className='container mx-auto px-4 py-8'>
@@ -113,52 +166,101 @@ export function UserInfo() {
                     <>No games played yet</>
                   )}
                 </p>
-                <div className='mt-2 flex items-center justify-center gap-2 md:justify-start'>
-                  <Badge
-                    variant='secondary'
-                    className='bg-white/20 text-white hover:bg-white/30'
-                  >
-                    <Users className='mr-1 h-3 w-3' />
-                    Rank #342
-                  </Badge>
-                  <Badge
-                    variant='secondary'
-                    className='bg-white/20 text-white hover:bg-white/30'
-                  >
-                    <Medal className='mr-1 h-3 w-3' />
-                    Gold
-                  </Badge>
+                <div className='mt-2 flex flex-wrap items-center justify-center gap-2 md:justify-start'>
+                  {!!rankedLeaderboard && (
+                    <Badge
+                      variant='secondary'
+                      className='bg-white/20 text-white hover:bg-white/30'
+                    >
+                      <Trophy className='mr-1 h-3 w-3' />
+                      Ranked Queue:{' '}
+                      {isNonNullish(rankedUserRank?.rank)
+                        ? `#${rankedUserRank.rank}`
+                        : 'N/A'}
+                    </Badge>
+                  )}
+                  {!!vanillaLeaderboard && (
+                    <Badge
+                      variant='secondary'
+                      className='bg-white/20 text-white hover:bg-white/30'
+                    >
+                      <Star className='mr-1 h-3 w-3' />
+                      Vanilla Queue:{' '}
+                      {isNonNullish(vanillaLeaderboard?.rank)
+                        ? `#${vanillaLeaderboard.rank}`
+                        : 'N/A'}
+                    </Badge>
+                  )}
                 </div>
               </div>
 
               <div className='flex flex-1 justify-end'>
-                <div className='hidden rounded-lg bg-white/10 p-3 text-white backdrop-blur-sm md:block'>
-                  <div className='font-medium text-sm'>Current MMR</div>
-                  <div className='font-bold text-2xl'>
-                    {Math.trunc(
-                      lastGame ? lastGame.playerMmr + lastGame.mmrChange : 200
-                    )}
-                  </div>
-                  <div className='text-violet-200 text-xs'>
-                    {!!lastGame &&
-                      (lastGame.mmrChange > 0 ? (
-                        <span className='flex items-center text-green-300'>
-                          <ChevronUp className='h-3 w-3' />
-                          {numberFormatter.format(
-                            Math.trunc(lastGame.mmrChange)
-                          )}{' '}
-                          last match
-                        </span>
-                      ) : (
-                        <span className='flex items-center text-red-300'>
-                          <ChevronDown className='h-3 w-3' />
-                          {numberFormatter.format(
-                            Math.trunc(lastGame.mmrChange)
-                          )}{' '}
-                          last match
-                        </span>
-                      ))}
-                  </div>
+                <div className='flex gap-3'>
+                  {lastGameLeaderboard1 && (
+                    <div className='hidden rounded-lg bg-white/10 p-3 text-white backdrop-blur-sm md:block'>
+                      <div className='font-medium text-sm'>
+                        Ranked Queue MMR
+                      </div>
+                      <div className='font-bold text-2xl'>
+                        {Math.trunc(
+                          lastGameLeaderboard1.playerMmr +
+                            lastGameLeaderboard1.mmrChange
+                        )}
+                      </div>
+                      <div className='text-violet-200 text-xs'>
+                        {lastGameLeaderboard1.mmrChange > 0 ? (
+                          <span className='flex items-center text-green-300'>
+                            <ChevronUp className='h-3 w-3' />
+                            {numberFormatter.format(
+                              Math.trunc(lastGameLeaderboard1.mmrChange)
+                            )}{' '}
+                            last match
+                          </span>
+                        ) : (
+                          <span className='flex items-center text-red-300'>
+                            <ChevronDown className='h-3 w-3' />
+                            {numberFormatter.format(
+                              Math.trunc(lastGameLeaderboard1.mmrChange)
+                            )}{' '}
+                            last match
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {lastGameLeaderboard2 && (
+                    <div className='hidden rounded-lg bg-white/10 p-3 text-white backdrop-blur-sm md:block'>
+                      <div className='font-medium text-sm'>
+                        Leaderboard 2 MMR
+                      </div>
+                      <div className='font-bold text-2xl'>
+                        {Math.trunc(
+                          lastGameLeaderboard2.playerMmr +
+                            lastGameLeaderboard2.mmrChange
+                        )}
+                      </div>
+                      <div className='text-violet-200 text-xs'>
+                        {lastGameLeaderboard2.mmrChange > 0 ? (
+                          <span className='flex items-center text-green-300'>
+                            <ChevronUp className='h-3 w-3' />
+                            {numberFormatter.format(
+                              Math.trunc(lastGameLeaderboard2.mmrChange)
+                            )}{' '}
+                            last match
+                          </span>
+                        ) : (
+                          <span className='flex items-center text-red-300'>
+                            <ChevronDown className='h-3 w-3' />
+                            {numberFormatter.format(
+                              Math.trunc(lastGameLeaderboard2.mmrChange)
+                            )}{' '}
+                            last match
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -183,14 +285,14 @@ export function UserInfo() {
                 title='Losses'
                 value={profileData.losses}
                 icon={<ArrowDownCircle className='h-5 w-5 text-rose-500' />}
-                description={`${Math.round((profileData.losses / profileData.games) * 100)}% loss rate`}
+                description={`${profileData.games > 0 ? Math.round((profileData.losses / profileData.games) * 100) : 0}% loss rate`}
                 accentColor='text-rose-500'
               />
               <StatsCard
                 title='Ties'
                 value={profileData.ties}
                 icon={<MinusCircle className='h-5 w-5 text-amber-500' />}
-                description={`${Math.round((profileData.ties / profileData.games) * 100)}% tie rate`}
+                description={`${profileData.games > 0 ? Math.round((profileData.ties / profileData.games) * 100) : 0}% tie rate`}
                 accentColor='text-amber-500'
               />
             </div>
@@ -204,6 +306,23 @@ export function UserInfo() {
                 </TabsList>
 
                 <div className='flex items-center gap-2'>
+                  <div className='mr-2 flex items-center gap-2'>
+                    <Trophy className='h-4 w-4 text-slate-400' />
+                    <Select
+                      value={leaderboardFilter}
+                      onValueChange={setLeaderboardFilter}
+                    >
+                      <SelectTrigger className='h-9 w-[150px]'>
+                        <SelectValue placeholder='Leaderboard' />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value='all'>All Leaderboards</SelectItem>
+                        <SelectItem value='ranked'>Ranked</SelectItem>
+                        <SelectItem value='vanilla'>Vanilla</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                   <Filter className='h-4 w-4 text-slate-400' />
                   <Select value={filter} onValueChange={setFilter}>
                     <SelectTrigger className='h-9 w-[120px]'>
@@ -230,8 +349,11 @@ export function UserInfo() {
                           <TableHead className='text-right'>
                             Opponent MMR
                           </TableHead>
-                          <TableHead className='text-right'>Your MMR</TableHead>
+                          <TableHead className='text-right'>MMR</TableHead>
                           <TableHead className='text-right'>Result</TableHead>
+                          <TableHead className='text-center'>
+                            Leaderboard
+                          </TableHead>
                           <TableHead className='text-right'>
                             <span className='flex items-center justify-end gap-1'>
                               <Calendar className='h-4 w-4' /> Date
@@ -245,7 +367,7 @@ export function UserInfo() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {games.map((game) => (
+                        {filteredGames.map((game) => (
                           <TableRow
                             key={game.gameId}
                             className='transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/70'
@@ -261,13 +383,13 @@ export function UserInfo() {
                             <TableCell className='font-medium'>
                               {game.opponentName}
                             </TableCell>
-                            <TableCell className='text-right'>
+                            <TableCell className='text-right font-mono'>
                               {Math.trunc(game.opponentMmr)}
                             </TableCell>
-                            <TableCell className='text-right'>
+                            <TableCell className='text-right font-mono'>
                               {Math.trunc(game.playerMmr)}
                             </TableCell>
-                            <TableCell className='text-right'>
+                            <TableCell className='text-right font-mono'>
                               {game.mmrChange > 0 ? (
                                 <span className='flex items-center justify-end font-medium text-emerald-500'>
                                   <ArrowUpCircle className='mr-1 inline h-4 w-4' />
@@ -284,14 +406,33 @@ export function UserInfo() {
                                 </span>
                               )}
                             </TableCell>
-                            <TableCell className='text-right text-slate-500 dark:text-slate-400'>
+                            <TableCell className='text-center'>
+                              <Badge
+                                variant='outline'
+                                className={cn(
+                                  'w-full font-normal',
+                                  game.gameType === 'ranked'
+                                    ? 'border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-800 dark:bg-violet-950 dark:text-violet-300'
+                                    : game.gameType.toLowerCase() === 'vanilla'
+                                      ? 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                                      : 'border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300'
+                                )}
+                              >
+                                {game.gameType === 'ranked'
+                                  ? 'Ranked Queue'
+                                  : game.gameType.toLowerCase() === 'vanilla'
+                                    ? 'Vanilla Queue'
+                                    : 'N/A'}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className='text-right font-mono text-slate-500 dark:text-slate-400'>
                               {format.dateTime(game.gameTime, {
                                 year: 'numeric',
                                 month: '2-digit',
                                 day: '2-digit',
                               })}
                             </TableCell>
-                            <TableCell className='text-right text-slate-500 dark:text-slate-400'>
+                            <TableCell className='text-right font-mono text-slate-500 dark:text-slate-400'>
                               {format.dateTime(game.gameTime, {
                                 hour: '2-digit',
                                 minute: '2-digit',
@@ -306,10 +447,51 @@ export function UserInfo() {
               </TabsContent>
 
               <TabsContent value='stats' className='m-0'>
-                <div className='flex h-40 items-center justify-center rounded-lg border bg-slate-50 dark:bg-slate-800/50'>
-                  <p className='text-slate-500 dark:text-slate-400'>
-                    Statistics coming soon
-                  </p>
+                <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+                  {(rankedLeaderboard || lastGameLeaderboard1) && (
+                    <LeaderboardStatsCard
+                      title='Leaderboard 1 Stats'
+                      rank={rankedLeaderboard?.rank}
+                      mmr={
+                        lastGameLeaderboard1
+                          ? Math.trunc(
+                              lastGameLeaderboard1.playerMmr +
+                                lastGameLeaderboard1.mmrChange
+                            )
+                          : undefined
+                      }
+                      icon={<Trophy className='h-5 w-5 text-violet-500' />}
+                      accentColor='text-violet-500'
+                    />
+                  )}
+
+                  {(vanillaLeaderboard || lastGameLeaderboard2) && (
+                    <LeaderboardStatsCard
+                      title='Leaderboard 2 Stats'
+                      rank={vanillaLeaderboard?.rank}
+                      mmr={
+                        lastGameLeaderboard2
+                          ? Math.trunc(
+                              lastGameLeaderboard2.playerMmr +
+                                lastGameLeaderboard2.mmrChange
+                            )
+                          : undefined
+                      }
+                      icon={<Star className='h-5 w-5 text-amber-500' />}
+                      accentColor='text-amber-500'
+                    />
+                  )}
+
+                  {!rankedLeaderboard &&
+                    !vanillaLeaderboard &&
+                    !lastGameLeaderboard1 &&
+                    !lastGameLeaderboard2 && (
+                      <div className='col-span-2 flex h-40 items-center justify-center rounded-lg border bg-slate-50 dark:bg-slate-800/50'>
+                        <p className='text-slate-500 dark:text-slate-400'>
+                          No leaderboard data available
+                        </p>
+                      </div>
+                    )}
                 </div>
               </TabsContent>
 
@@ -353,6 +535,64 @@ function StatsCard({
       <p className='mt-1 text-slate-500 text-xs dark:text-slate-400'>
         {description}
       </p>
+    </div>
+  )
+}
+
+interface LeaderboardStatsCardProps {
+  title: string
+  rank?: number
+  mmr?: number
+  icon: React.ReactNode
+  accentColor?: string
+}
+
+function LeaderboardStatsCard({
+  title,
+  rank,
+  mmr,
+  icon,
+  accentColor = 'text-violet-500',
+}: LeaderboardStatsCardProps) {
+  return (
+    <div className='rounded-lg border bg-white p-6 dark:bg-slate-800/20'>
+      <div className='mb-4 flex items-center gap-3'>
+        <div
+          className={cn(
+            'rounded-full bg-slate-100 p-2 dark:bg-slate-800',
+            accentColor
+          )}
+        >
+          {icon}
+        </div>
+        <h3 className='font-semibold text-lg'>{title}</h3>
+      </div>
+
+      <div className='grid grid-cols-2 gap-4'>
+        {rank !== undefined && (
+          <div className='rounded-lg bg-slate-50 p-4 dark:bg-slate-800/40'>
+            <p className='text-slate-500 text-sm dark:text-slate-400'>Rank</p>
+            <p className={cn('mt-1 font-bold text-2xl', accentColor)}>
+              #{rank}
+            </p>
+          </div>
+        )}
+
+        {mmr !== undefined && (
+          <div className='rounded-lg bg-slate-50 p-4 dark:bg-slate-800/40'>
+            <p className='text-slate-500 text-sm dark:text-slate-400'>MMR</p>
+            <p className={cn('mt-1 font-bold text-2xl', accentColor)}>{mmr}</p>
+          </div>
+        )}
+
+        {rank === undefined && mmr === undefined && (
+          <div className='col-span-2 flex h-20 items-center justify-center rounded-lg bg-slate-50 p-4 dark:bg-slate-800/40'>
+            <p className='text-slate-500 dark:text-slate-400'>
+              No data available
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
