@@ -1,12 +1,7 @@
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from '@/server/api/trpc'
+import { createTRPCRouter, publicProcedure } from '@/server/api/trpc'
 import { db } from '@/server/db'
 import { player_games, raw_history } from '@/server/db/schema'
 import { desc, eq } from 'drizzle-orm'
-import { chunk } from 'remeda'
 import { z } from 'zod'
 
 export const history_router = createTRPCRouter({

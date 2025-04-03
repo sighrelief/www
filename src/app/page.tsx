@@ -1,6 +1,6 @@
 import { UserStats } from '@/app/_components/user-stats'
 import { auth } from '@/server/auth'
-import { HydrateClient, api } from '@/trpc/server'
+import { HydrateClient } from '@/trpc/server'
 
 export default async function Home() {
   const session = await auth()

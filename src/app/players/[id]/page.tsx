@@ -1,4 +1,3 @@
-import { PlayerGames } from '@/app/players/[id]/games'
 import { UserInfo } from '@/app/players/[id]/user'
 import { auth } from '@/server/auth'
 import { HydrateClient, api } from '@/trpc/server'
