@@ -259,6 +259,7 @@ function LeaderboardTable({
             <TableRow className=' bg-slate-50 dark:bg-slate-800/50'>
               <TableHead className='w-[80px]'>
                 <SortableHeader
+                  className='w-full justify-end'
                   column='rank'
                   label='Rank'
                   currentSort={sortColumn}
@@ -366,8 +367,8 @@ function LeaderboardTable({
                         'transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/70'
                       )}
                     >
-                      <TableCell className='font-medium'>
-                        <div className='flex items-center gap-1.5'>
+                      <TableCell className='w-24 font-medium'>
+                        <div className='flex items-center justify-end gap-1.5 pr-4.5 font-mono'>
                           {getMedal(entry.rank)}
                           <span>{entry.rank}</span>
                         </div>
@@ -377,15 +378,6 @@ function LeaderboardTable({
                           href={`/players/${entry.id}`}
                           className='flex items-center gap-2 hover:underline'
                         >
-                          {/*<Avatar className='h-8 w-8'>*/}
-                          {/*  <AvatarImage*/}
-                          {/*    src={`https://cdn.discordapp.com/avatars/${entry.id}/avatar.png`}*/}
-                          {/*    alt={entry.name}*/}
-                          {/*  />*/}
-                          {/*  <AvatarFallback className='bg-violet-100 text-violet-700 text-xs dark:bg-violet-900 dark:text-violet-300'>*/}
-                          {/*    {entry.name.slice(0, 2).toUpperCase()}*/}
-                          {/*  </AvatarFallback>*/}
-                          {/*</Avatar>*/}
                           <span className='font-medium'>{entry.name}</span>
                           {entry.streak >= 3 && (
                             <Badge className='bg-orange-500 text-white'>
@@ -395,7 +387,7 @@ function LeaderboardTable({
                           )}
                         </Link>
                       </TableCell>
-                      <TableCell className='text-right font-medium font-mono'>
+                      <TableCell className='pr-7 text-right font-medium font-mono'>
                         {Math.round(entry.mmr)}
                       </TableCell>
                       <TableCell className='text-right font-mono'>
@@ -498,15 +490,17 @@ function SortableHeader({
       onClick={() => onSort(column)}
     >
       {label}
-      {isActive ? (
-        direction === 'asc' ? (
-          <ArrowUp className='h-3.5 w-3.5' />
+      <span className={'flex w-4 items-center justify-center'}>
+        {isActive ? (
+          direction === 'asc' ? (
+            <ArrowUp className='h-3.5 w-3.5' />
+          ) : (
+            <ArrowDown className='h-3.5 w-3.5' />
+          )
         ) : (
-          <ArrowDown className='h-3.5 w-3.5' />
-        )
-      ) : (
-        <ArrowUpDown className='h-3.5 w-3.5 opacity-50' />
-      )}
+          <ArrowUpDown className='h-3.5 w-3.5 opacity-50' />
+        )}
+      </span>
     </button>
   )
 }
