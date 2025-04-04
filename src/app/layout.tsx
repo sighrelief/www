@@ -6,6 +6,7 @@ import { Geist } from 'next/font/google'
 import { MainHeader } from '@/components/header'
 import { ThemeProvider } from '@/components/theme-provider'
 import { TRPCReactProvider } from '@/trpc/react'
+import { SessionProvider } from 'next-auth/react'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale } from 'next-intl/server'
 
@@ -33,15 +34,17 @@ export default async function RootLayout({
       <body>
         <TRPCReactProvider>
           <NextIntlClientProvider>
-            <ThemeProvider
-              attribute='class'
-              defaultTheme='system'
-              enableSystem
-              disableTransitionOnChange
-            >
-              <MainHeader />
-              {children}
-            </ThemeProvider>
+            <SessionProvider>
+              <ThemeProvider
+                attribute='class'
+                defaultTheme='system'
+                enableSystem
+                disableTransitionOnChange
+              >
+                <MainHeader />
+                {children}
+              </ThemeProvider>
+            </SessionProvider>
           </NextIntlClientProvider>
         </TRPCReactProvider>
       </body>

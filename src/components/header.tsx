@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { LogIn, LogOut, Menu, Moon, Settings, Sun, User, X } from 'lucide-react'
+import { signIn, signOut, useSession } from 'next-auth/react'
 import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -16,21 +17,8 @@ import { useState } from 'react'
 export function MainHeader() {
   const { setTheme, theme } = useTheme()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
-  // Mock authentication state - replace with your actual auth logic
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-
-  // Mock user data - replace with your actual user data
-  const userData = {
-    name: 'Player123',
-    avatar: '/placeholder.svg?height=40&width=40',
-  }
-
-  // Toggle authentication for demo purposes
-  const toggleAuth = () => {
-    setIsAuthenticated(!isAuthenticated)
-  }
-
+  const { data: session, status } = useSession()
+  const isAuthenticated = status === 'authenticated'
   return (
     <header className='sticky top-0 z-40 border-gray-200 border-b bg-white dark:border-zinc-800 dark:bg-zinc-900'>
       <div className='container mx-auto px-4'>
@@ -97,7 +85,7 @@ export function MainHeader() {
             </DropdownMenu>
 
             {/* Sign In Button or User Menu */}
-            {isAuthenticated ? (
+            {isAuthenticated && session?.user && session.user.name ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -105,9 +93,12 @@ export function MainHeader() {
                     className='relative h-9 w-9 rounded-full'
                   >
                     <Avatar className='h-9 w-9'>
-                      <AvatarImage src={userData.avatar} alt={userData.name} />
+                      <AvatarImage
+                        src={session.user.image ?? ''}
+                        alt={session.user.name}
+                      />
                       <AvatarFallback className='bg-violet-50 text-violet-600 dark:bg-violet-900/50 dark:text-violet-300'>
-                        {userData.name.slice(0, 2).toUpperCase()}
+                        {session.user.name?.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
@@ -115,11 +106,14 @@ export function MainHeader() {
                 <DropdownMenuContent className='w-56' align='end' forceMount>
                   <div className='flex items-center justify-start gap-2 p-2'>
                     <div className='flex flex-col space-y-1 leading-none'>
-                      <p className='font-medium'>{userData.name}</p>
+                      <p className='font-medium'>{session.user.name}</p>
                     </div>
                   </div>
                   <DropdownMenuItem asChild>
-                    <Link href='/profile' className='flex w-full items-center'>
+                    <Link
+                      href={`/players/${session.user.discord_id}`}
+                      className='flex w-full items-center'
+                    >
                       <User className='mr-2 h-4 w-4' />
                       <span>Profile</span>
                     </Link>
@@ -130,7 +124,7 @@ export function MainHeader() {
                       <span>Settings</span>
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={toggleAuth}>
+                  <DropdownMenuItem onClick={() => signOut()}>
                     <LogOut className='mr-2 h-4 w-4' />
                     <span>Log out</span>
                   </DropdownMenuItem>
@@ -141,7 +135,7 @@ export function MainHeader() {
                 variant='default'
                 size='sm'
                 className='bg-violet-600 hover:bg-violet-700 dark:text-zinc-100'
-                onClick={toggleAuth}
+                onClick={() => signIn('discord')}
               >
                 <LogIn className='mr-2 h-4 w-4' />
                 Sign In
