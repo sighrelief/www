@@ -1,5 +1,11 @@
 'use client'
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import type React from 'react'
 import { useState } from 'react'
 
@@ -26,6 +32,7 @@ import {
   ChevronUp,
   Filter,
   IceCreamCone,
+  InfoIcon,
   MinusCircle,
   ShieldHalf,
   Star,
@@ -104,8 +111,13 @@ export function UserInfo() {
     }
   }
 
+  const aliases = [...new Set(games.map((g) => g.playerName))]
+  console.log(aliases)
+  const lastGame = games.at(0)
+
+  const currentName = lastGame?.playerName ?? discord_user.username
   const profileData = {
-    username: discord_user.username,
+    username: currentName,
     avatar: discord_user.avatar_url,
     games: games_played,
     wins,
@@ -114,7 +126,6 @@ export function UserInfo() {
     winRate: games_played > 0 ? Math.round((wins / games_played) * 100) : 0,
   }
 
-  const lastGame = games.at(0)
   const firstGame = games.at(-1)
 
   // Get last games for each leaderboard
@@ -144,9 +155,29 @@ export function UserInfo() {
               </div>
 
               <div className='text-center md:text-left'>
-                <h1 className='font-bold text-3xl text-gray-900 dark:text-white'>
-                  {profileData.username}
-                </h1>
+                <div className={'flex items-start gap-2'}>
+                  <h1 className='font-bold text-3xl text-gray-900 dark:text-white'>
+                    {profileData.username}
+                  </h1>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <InfoIcon className={'size-4'} />
+                      </TooltipTrigger>
+                      <TooltipContent align={'center'} sideOffset={5}>
+                        <div>
+                          <p>Also known as:</p>
+                          <ul className={'list-disc pl-4'}>
+                            {aliases.map((alias) => (
+                              <li key={alias}>{alias}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+
                 <p className='text-gray-500 text-sm dark:text-zinc-400'>
                   {firstGame ? (
                     <>First game: {dateFormatter.format(firstGame.gameTime)}</>
