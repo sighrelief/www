@@ -24,6 +24,8 @@ export const neatqueue_service = {
           rank: idx + 1,
           id: entry.id,
           name: entry.name,
+          totalgames: entry.data.wins + entry.data.losses,
+          winrate: entry.data.wins / (entry.data.wins + entry.data.losses),
         }
       }
     )
