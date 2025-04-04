@@ -9,7 +9,7 @@ import {
   users,
   verificationTokens,
 } from '@/server/db/schema'
-
+type UserRole = 'user' | 'admin'
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
  * object and keep type safety.
@@ -22,7 +22,7 @@ declare module 'next-auth' {
       id: string
       discord_id: string
       // ...other properties
-      // role: UserRole;
+      role: UserRole
     } & DefaultSession['user']
   }
 }
