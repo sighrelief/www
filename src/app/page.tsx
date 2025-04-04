@@ -1,5 +1,4 @@
 import { LeaderboardPage } from '@/app/_components/leaderboard'
-import { UserStats } from '@/app/_components/user-stats'
 import { auth } from '@/server/auth'
 import { RANKED_CHANNEL, VANILLA_CHANNEL } from '@/shared/constants'
 import { HydrateClient, api } from '@/trpc/server'
@@ -19,11 +18,11 @@ export default async function Home() {
   }
 
   return (
-    <HydrateClient>
-      <Suspense>
+    <Suspense>
+      <HydrateClient>
         {/*<UserStats/>*/}
         <LeaderboardPage />
-      </Suspense>
-    </HydrateClient>
+      </HydrateClient>
+    </Suspense>
   )
 }

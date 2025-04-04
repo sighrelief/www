@@ -25,7 +25,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { RANKED_CHANNEL, VANILLA_CHANNEL } from '@/shared/constants'
 import { api } from '@/trpc/react'
-import { isNotNull } from 'drizzle-orm'
 import {
   ArrowDownCircle,
   ArrowUpCircle,
@@ -83,8 +82,6 @@ export function UserInfo() {
     channel_id: RANKED_CHANNEL,
     user_id: id,
   })
-
-  console.log(rankedLeaderboard, vanillaLeaderboard)
 
   // Filter games by leaderboard if needed
   const filteredGamesByLeaderboard =

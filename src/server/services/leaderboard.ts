@@ -21,18 +21,12 @@ export class LeaderboardService {
     const pipeline = redis.pipeline()
     pipeline.del(zsetKey) // clear existing
 
-    for (const entry of fresh.alltime) {
+    for (const entry of fresh) {
       // store by mmr for ranking
-      pipeline.zadd(zsetKey, entry.data.mmr, entry.id)
+      pipeline.zadd(zsetKey, entry.rank, entry.id)
 
       // store user data separately for quick lookups
-      pipeline.hset(`user:${entry.id}`, {
-        name: entry.name,
-        mmr: entry.data.mmr,
-        wins: entry.data.wins,
-        losses: entry.data.losses,
-        // add other fields you need for quick lookup
-      })
+      pipeline.hset(`user:${entry.id}`, entry)
     }
 
     pipeline.expire(zsetKey, 180)

@@ -32,7 +32,6 @@ export async function syncHistory() {
     .where(eq(metadata.key, 'history_cursor'))
     .limit(1)
     .then((res) => res[0])
-  console.log('cursor', cursor)
   const data = await ky
     .get('https://api.neatqueue.com/api/history/1226193436521267223', {
       searchParams: {
@@ -64,9 +63,6 @@ export async function syncHistory() {
         value: firstGame,
       },
     })
-  console.log('matches', matches)
-  console.log('firstGame', firstGame)
-  console.log('data', data)
 
   const chunkedData = chunk(data.data, 100)
   for (const chunk of chunkedData) {

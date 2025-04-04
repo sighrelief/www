@@ -1,7 +1,7 @@
 'use client'
 
 import type React from 'react'
-import { useRef } from 'react'
+import { type ComponentPropsWithoutRef, Fragment, useRef } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -68,15 +68,13 @@ export function LeaderboardPage() {
 
   // Get the current leaderboard based on selected tab
   const currentLeaderboard =
-    leaderboardType === 'ranked'
-      ? rankedLeaderboard.alltime
-      : vanillaLeaderboard.alltime
+    leaderboardType === 'ranked' ? rankedLeaderboard : vanillaLeaderboard
 
   // Filter leaderboard by search query
   const filteredLeaderboard = currentLeaderboard.filter((entry) =>
     entry.name.toLowerCase().includes(searchQuery.toLowerCase())
   )
-
+  console.log(filteredLeaderboard)
   // Sort leaderboard
   const sortedLeaderboard = [...filteredLeaderboard].sort((a, b) => {
     // biome-ignore lint/style/useSingleVarDeclarator: <explanation>
@@ -85,8 +83,8 @@ export function LeaderboardPage() {
 
     // Handle special case for rank which is already sorted
     if (sortColumn === 'rank') {
-      valueA = a.data.rank
-      valueB = b.data.rank
+      valueA = a.rank
+      valueB = b.rank
     } else if (sortColumn === 'name') {
       valueA = a.name.toLowerCase()
       valueB = b.name.toLowerCase()
@@ -94,8 +92,8 @@ export function LeaderboardPage() {
         ? valueA.localeCompare(valueB)
         : valueB.localeCompare(valueA)
     } else {
-      valueA = a.data[sortColumn as keyof typeof a.data] as number
-      valueB = b.data[sortColumn as keyof typeof b.data] as number
+      valueA = a[sortColumn as keyof typeof a] as number
+      valueB = b[sortColumn as keyof typeof b] as number
     }
 
     return sortDirection === 'asc' ? valueA - valueB : valueB - valueA
@@ -118,12 +116,11 @@ export function LeaderboardPage() {
     if (rank === 3) return <Medal className='h-5 w-5 text-amber-700' />
     return null
   }
-  console.log(currentLeaderboard)
 
   return (
-    <div className='min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900'>
-      <div className='container mx-auto px-4 py-8'>
-        <Card className='overflow-hidden border-none bg-white py-0 shadow-lg dark:bg-slate-900'>
+    <div className='flex min-h-screen flex-col bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900'>
+      <div className='container mx-auto flex flex-1 flex-col px-4 py-4'>
+        <Card className='flex flex-1 flex-col overflow-hidden border-none bg-white p-0 shadow-lg dark:bg-slate-900'>
           <CardHeader className='bg-gradient-to-r from-violet-500 to-purple-600 p-6'>
             <div className='flex flex-col items-center justify-between gap-4 md:flex-row'>
               <div>
@@ -157,12 +154,12 @@ export function LeaderboardPage() {
             </div>
           </CardHeader>
 
-          <CardContent className='p-0'>
+          <CardContent className='flex flex-1 flex-col p-0'>
             <Tabs
               defaultValue={leaderboardType}
               value={leaderboardType}
               onValueChange={handleTabChange}
-              className='p-6'
+              className='flex flex-1 flex-col p-4 md:p-6'
             >
               <div className='mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center'>
                 <TabsList className='bg-slate-100 dark:bg-slate-800'>
@@ -181,7 +178,7 @@ export function LeaderboardPage() {
                 </div>
               </div>
 
-              <TabsContent value='ranked' className='m-0'>
+              <TabsContent value='ranked' className='m-0 flex flex-1 flex-col'>
                 <LeaderboardTable
                   leaderboard={sortedLeaderboard}
                   sortColumn={sortColumn}
@@ -192,7 +189,7 @@ export function LeaderboardPage() {
                 />
               </TabsContent>
 
-              <TabsContent value='vanilla' className='m-0'>
+              <TabsContent value='vanilla' className='m-0 flex flex-1 flex-col'>
                 <LeaderboardTable
                   leaderboard={sortedLeaderboard}
                   sortColumn={sortColumn}
@@ -230,18 +227,20 @@ function LeaderboardTable({
   const tableContainerRef = useRef<HTMLDivElement>(null)
 
   // Set a fixed row height for virtualization
-  const ROW_HEIGHT = 56 // Adjust based on your actual row height
-
+  const ROW_HEIGHT = 39 // Adjust based on your actual row height
+  console.log(leaderboard.length)
   // Create virtualizer instance
   const rowVirtualizer = useVirtualizer({
     count: leaderboard.length,
     getScrollElement: () => tableContainerRef.current,
     estimateSize: () => ROW_HEIGHT,
-    overscan: 10, // Number of items to render before/after the visible area
+    overscan: 12, // Number of items to render before/after the visible area
   })
 
   // Get the virtualized rows
   const virtualRows = rowVirtualizer.getVirtualItems()
+  console.log({ virtualRows })
+  console.log(rowVirtualizer.getTotalSize())
   const paddingTop = virtualRows.length > 0 ? virtualRows?.[0]?.start : 0
   const paddingBottom =
     virtualRows.length > 0
@@ -249,15 +248,15 @@ function LeaderboardTable({
         (virtualRows?.[virtualRows.length - 1]?.end ?? 0)
       : 0
   return (
-    <div className='overflow-hidden rounded-lg border'>
+    <div className='flex flex-1 flex-col overflow-hidden rounded-lg border'>
       <div
         ref={tableContainerRef}
-        className='overflow-auto'
-        style={{ height: '500px', maxHeight: '70vh' }}
+        className='flex-1 overflow-auto overflow-x-auto'
+        style={{ maxHeight: 'calc(100vh - 300px)' }}
       >
         <Table>
           <TableHeader className='sticky top-0 z-10 bg-white dark:bg-slate-900'>
-            <TableRow className='bg-slate-50 dark:bg-slate-800/50'>
+            <TableRow className=' bg-slate-50 dark:bg-slate-800/50'>
               <TableHead className='w-[80px]'>
                 <SortableHeader
                   column='rank'
@@ -278,6 +277,7 @@ function LeaderboardTable({
               </TableHead>
               <TableHead className='text-right'>
                 <SortableHeader
+                  className='w-full justify-end'
                   column='mmr'
                   label='MMR'
                   currentSort={sortColumn}
@@ -285,8 +285,9 @@ function LeaderboardTable({
                   onSort={onSort}
                 />
               </TableHead>
-              <TableHead className='text-right'>
+              <TableHead className='text-right' align={'right'}>
                 <SortableHeader
+                  className='w-full justify-end'
                   column='peak_mmr'
                   label='Peak MMR'
                   currentSort={sortColumn}
@@ -296,6 +297,7 @@ function LeaderboardTable({
               </TableHead>
               <TableHead className='text-right'>
                 <SortableHeader
+                  className='w-full justify-end'
                   column='winrate'
                   label='Win Rate'
                   currentSort={sortColumn}
@@ -305,6 +307,7 @@ function LeaderboardTable({
               </TableHead>
               <TableHead className='text-right'>
                 <SortableHeader
+                  className='w-full justify-end'
                   column='wins'
                   label='Wins'
                   currentSort={sortColumn}
@@ -314,6 +317,7 @@ function LeaderboardTable({
               </TableHead>
               <TableHead className='text-right'>
                 <SortableHeader
+                  className='w-full justify-end'
                   column='losses'
                   label='Losses'
                   currentSort={sortColumn}
@@ -323,6 +327,7 @@ function LeaderboardTable({
               </TableHead>
               <TableHead className='text-right'>
                 <SortableHeader
+                  className='w-full justify-end'
                   column='totalgames'
                   label='Games'
                   currentSort={sortColumn}
@@ -332,6 +337,7 @@ function LeaderboardTable({
               </TableHead>
               <TableHead className='text-right'>
                 <SortableHeader
+                  className='w-full justify-end'
                   column='streak'
                   label='Streak'
                   currentSort={sortColumn}
@@ -342,96 +348,105 @@ function LeaderboardTable({
             </TableRow>
           </TableHeader>
           <TableBody>
+            {paddingTop > 0 && (
+              <tr>
+                <td style={{ height: `${paddingTop}px` }} colSpan={9} />
+              </tr>
+            )}
             {leaderboard.length > 0 ? (
-              leaderboard.map((entry) => {
-                const winrate = entry.data.winrate * 100
+              virtualRows.map((virtualRow) => {
+                const entry = leaderboard[virtualRow.index]
+                const winrate = entry.winrate * 100
                 return (
-                  <TableRow
-                    key={entry.id}
-                    className={cn(
-                      'transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/70',
-                      entry.data.rank <= 3 &&
-                        'bg-amber-50/50 dark:bg-amber-950/20'
-                    )}
-                  >
-                    <TableCell className='font-medium'>
-                      <div className='flex items-center gap-1.5'>
-                        {getMedal(entry.data.rank)}
-                        <span>{entry.data.rank}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Link
-                        href={`/players/${entry.id}`}
-                        className='flex items-center gap-2 hover:underline'
-                      >
-                        {/*<Avatar className='h-8 w-8'>*/}
-                        {/*  <AvatarImage*/}
-                        {/*    src={`https://cdn.discordapp.com/avatars/${entry.id}/avatar.png`}*/}
-                        {/*    alt={entry.name}*/}
-                        {/*  />*/}
-                        {/*  <AvatarFallback className='bg-violet-100 text-violet-700 text-xs dark:bg-violet-900 dark:text-violet-300'>*/}
-                        {/*    {entry.name.slice(0, 2).toUpperCase()}*/}
-                        {/*  </AvatarFallback>*/}
-                        {/*</Avatar>*/}
-                        <span className='font-medium'>{entry.name}</span>
-                        {entry.data.streak >= 3 && (
-                          <Badge className='bg-orange-500 text-white'>
-                            <Flame className='mr-1 h-3 w-3' />
-                            Hot Streak
-                          </Badge>
-                        )}
-                      </Link>
-                    </TableCell>
-                    <TableCell className='text-right font-medium'>
-                      {Math.round(entry.data.mmr)}
-                    </TableCell>
-                    <TableCell className='text-right'>
-                      <div className='flex items-center justify-end gap-1'>
-                        <TrendingUp className='h-3.5 w-3.5 text-violet-500' />
-                        {Math.round(entry.data.peak_mmr)}
-                      </div>
-                    </TableCell>
-                    <TableCell className='text-right'>
-                      <Badge
-                        variant='outline'
-                        className={cn(
-                          'font-normal',
-                          winrate > 60
-                            ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
-                            : winrate < 40
-                              ? 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800 dark:bg-rose-950 dark:text-rose-300'
-                              : 'border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300'
-                        )}
-                      >
-                        {Math.round(winrate)}%
-                      </Badge>
-                    </TableCell>
-                    <TableCell className='text-right text-emerald-600 dark:text-emerald-400'>
-                      {entry.data.wins}
-                    </TableCell>
-                    <TableCell className='text-right text-rose-600 dark:text-rose-400'>
-                      {entry.data.losses}
-                    </TableCell>
-                    <TableCell className='text-right text-slate-600 dark:text-slate-400'>
-                      {entry.data.totalgames}
-                    </TableCell>
-                    <TableCell className='text-right'>
-                      {entry.data.streak > 0 ? (
-                        <span className='flex items-center justify-end text-emerald-600 dark:text-emerald-400'>
-                          <ArrowUp className='mr-1 h-3.5 w-3.5' />
-                          {entry.data.streak}
-                        </span>
-                      ) : entry.data.streak < 0 ? (
-                        <span className='flex items-center justify-end text-rose-600 dark:text-rose-400'>
-                          <ArrowDown className='mr-1 h-3.5 w-3.5' />
-                          {Math.abs(entry.data.streak)}
-                        </span>
-                      ) : (
-                        <span>0</span>
+                  <Fragment key={entry.id}>
+                    {/* Add padding to the top to push content into view */}
+
+                    <TableRow
+                      className={cn(
+                        'transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/70'
                       )}
-                    </TableCell>
-                  </TableRow>
+                    >
+                      <TableCell className='font-medium'>
+                        <div className='flex items-center gap-1.5'>
+                          {getMedal(entry.rank)}
+                          <span>{entry.rank}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Link
+                          href={`/players/${entry.id}`}
+                          className='flex items-center gap-2 hover:underline'
+                        >
+                          {/*<Avatar className='h-8 w-8'>*/}
+                          {/*  <AvatarImage*/}
+                          {/*    src={`https://cdn.discordapp.com/avatars/${entry.id}/avatar.png`}*/}
+                          {/*    alt={entry.name}*/}
+                          {/*  />*/}
+                          {/*  <AvatarFallback className='bg-violet-100 text-violet-700 text-xs dark:bg-violet-900 dark:text-violet-300'>*/}
+                          {/*    {entry.name.slice(0, 2).toUpperCase()}*/}
+                          {/*  </AvatarFallback>*/}
+                          {/*</Avatar>*/}
+                          <span className='font-medium'>{entry.name}</span>
+                          {entry.streak >= 3 && (
+                            <Badge className='bg-orange-500 text-white'>
+                              <Flame className='mr-1 h-3 w-3' />
+                              Hot Streak
+                            </Badge>
+                          )}
+                        </Link>
+                      </TableCell>
+                      <TableCell className='text-right font-medium font-mono'>
+                        {Math.round(entry.mmr)}
+                      </TableCell>
+                      <TableCell className='text-right font-mono'>
+                        <div className='flex items-center justify-end gap-1'>
+                          {Math.round(entry.peak_mmr)}
+                          <TrendingUp className='h-3.5 w-3.5 text-violet-500' />
+                        </div>
+                      </TableCell>
+                      <TableCell className='text-right'>
+                        <Badge
+                          variant='outline'
+                          className={cn(
+                            'font-normal ',
+                            winrate > 60
+                              ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                              : winrate < 40
+                                ? 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800 dark:bg-rose-950 dark:text-rose-300'
+                                : 'border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300'
+                          )}
+                        >
+                          {Math.round(winrate)}%
+                        </Badge>
+                      </TableCell>
+                      <TableCell className='text-right text-emerald-600 dark:text-emerald-400'>
+                        {entry.wins}
+                      </TableCell>
+                      <TableCell className='text-right text-rose-600 dark:text-rose-400'>
+                        {entry.losses}
+                      </TableCell>
+                      <TableCell className='text-right font-mono text-slate-600 dark:text-slate-400'>
+                        {entry.totalgames}
+                      </TableCell>
+                      <TableCell className='text-right'>
+                        {entry.streak > 0 ? (
+                          <span className='flex items-center justify-end text-emerald-600 dark:text-emerald-400'>
+                            <ArrowUp className='mr-1 h-3.5 w-3.5' />
+                            {entry.streak}
+                          </span>
+                        ) : entry.streak < 0 ? (
+                          <span className='flex items-center justify-end font-mono text-rose-600 dark:text-rose-400'>
+                            <ArrowDown className='mr-1 h-3.5 w-3.5' />
+                            <span className={'w-[2ch]'}>
+                              {Math.abs(entry.streak)}
+                            </span>
+                          </span>
+                        ) : (
+                          <span>0</span>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  </Fragment>
                 )
               })
             ) : (
@@ -441,6 +456,11 @@ function LeaderboardTable({
                 </TableCell>
               </TableRow>
             )}
+            {paddingBottom > 0 && (
+              <tr>
+                <td style={{ height: `${paddingBottom}px` }} colSpan={9} />
+              </tr>
+            )}
           </TableBody>
         </Table>
       </div>
@@ -448,7 +468,7 @@ function LeaderboardTable({
   )
 }
 
-interface SortableHeaderProps {
+interface SortableHeaderProps extends ComponentPropsWithoutRef<'button'> {
   column: string
   label: string
   currentSort: string
@@ -462,12 +482,19 @@ function SortableHeader({
   currentSort,
   direction,
   onSort,
+  className,
+  ...rest
 }: SortableHeaderProps) {
   const isActive = currentSort === column
 
   return (
     <button
-      className='flex items-center gap-1 transition-colors hover:text-violet-600 dark:hover:text-violet-400'
+      type={'button'}
+      className={cn(
+        'flex items-center gap-1 transition-colors hover:text-violet-600 dark:hover:text-violet-400',
+        className
+      )}
+      {...rest}
       onClick={() => onSort(column)}
     >
       {label}

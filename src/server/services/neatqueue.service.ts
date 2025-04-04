@@ -11,11 +11,23 @@ const BMM_SERVER_ID = '1226193436521267223'
 
 export const neatqueue_service = {
   get_leaderboard: async (channel_id: string) => {
-    const response = await instance.get(
-      `leaderboard/${BMM_SERVER_ID}/${channel_id}`
-    )
+    const res = await instance
+      .get(`leaderboard/${BMM_SERVER_ID}/${channel_id}`)
+      .json<LeaderboardResponse>()
 
-    return response.json<LeaderboardResponse>()
+    //desc
+    res.alltime.sort((a, b) => b.data.mmr - a.data.mmr)
+    const fixed: Array<Data & { id: string; name: string }> = res.alltime.map(
+      (entry, idx) => {
+        return {
+          ...entry.data,
+          rank: idx + 1,
+          id: entry.id,
+          name: entry.name,
+        }
+      }
+    )
+    return fixed
   },
   get_history: async (
     player_ids: string[],
