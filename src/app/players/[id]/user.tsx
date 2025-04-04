@@ -108,6 +108,8 @@ export function UserInfo() {
       losses++
     } else if (game.result === 'tie') {
       ties++
+    } else {
+      ties++
     }
   }
 
@@ -115,14 +117,19 @@ export function UserInfo() {
   const lastGame = games.at(0)
 
   const currentName = lastGame?.playerName ?? discord_user.username
+  const meaningful_games = games_played - ties
   const profileData = {
     username: currentName,
     avatar: discord_user.avatar_url,
     games: games_played,
+    meaningful_games,
     wins,
     losses,
     ties,
-    winRate: games_played > 0 ? Math.round((wins / games_played) * 100) : 0,
+    winRate:
+      meaningful_games > 0 ? Math.ceil((wins / meaningful_games) * 100) : 0,
+    lossRate:
+      meaningful_games > 0 ? Math.floor((losses / meaningful_games) * 100) : 0,
   }
 
   const firstGame = games.at(-1)
@@ -218,11 +225,11 @@ export function UserInfo() {
               <div
                 className={cn(
                   'grid w-full flex-grow grid-cols-2 divide-gray-100 md:w-auto md:grid-cols-3 md:divide-y-0 dark:divide-zinc-800',
-                  isNonNullish(rankedUserRank?.mmr) && 'lg:grid-cols-5',
-                  isNonNullish(vanillaUserRank?.mmr) && 'lg:grid-cols-5',
+                  isNonNullish(rankedUserRank?.mmr) && 'lg:grid-cols-4',
+                  isNonNullish(vanillaUserRank?.mmr) && 'lg:grid-cols-4',
                   isNonNullish(rankedUserRank?.mmr) &&
                     isNonNullish(vanillaUserRank?.mmr) &&
-                    'lg:grid-cols-6'
+                    'lg:grid-cols-5'
                 )}
               >
                 <StatsCard
@@ -242,15 +249,8 @@ export function UserInfo() {
                   title='Losses'
                   value={profileData.losses}
                   icon={<ArrowDownCircle className='h-5 w-5 text-rose-500' />}
-                  description={`${profileData.games > 0 ? Math.round((profileData.losses / profileData.games) * 100) : 0}% loss rate`}
+                  description={`${profileData.lossRate}% loss rate`}
                   accentColor='text-rose-500'
-                />
-                <StatsCard
-                  title='Ties'
-                  value={profileData.ties}
-                  icon={<MinusCircle className='h-5 w-5 text-amber-500' />}
-                  description={`${profileData.games > 0 ? Math.round((profileData.ties / profileData.games) * 100) : 0}% tie rate`}
-                  accentColor='text-amber-500'
                 />
                 {isNonNullish(rankedUserRank?.mmr) && (
                   <StatsCard
@@ -261,19 +261,25 @@ export function UserInfo() {
                         <span
                           className={cn(
                             'flex items-center',
-                            lastRankedGame.mmrChange > 0
-                              ? 'text-emerald-500'
-                              : 'text-rose-500'
+                            lastRankedGame.mmrChange === 0
+                              ? 'text-zink-800 dark:text-zink-200'
+                              : lastRankedGame.mmrChange > 0
+                                ? 'text-emerald-500'
+                                : 'text-rose-500'
                           )}
                         >
-                          {lastRankedGame.mmrChange > 0 ? (
+                          {lastRankedGame.mmrChange === 0 ? (
+                            'Tied'
+                          ) : lastRankedGame.mmrChange > 0 ? (
                             <ChevronUp className='h-3 w-3' />
                           ) : (
                             <ChevronDown className='h-3 w-3' />
                           )}
-                          {numberFormatter.format(
-                            Math.trunc(lastRankedGame.mmrChange)
-                          )}{' '}
+                          {lastRankedGame.mmrChange !== 0
+                            ? numberFormatter.format(
+                                Math.trunc(lastRankedGame.mmrChange)
+                              )
+                            : null}{' '}
                           last match
                         </span>
                       ) : null
@@ -297,19 +303,25 @@ export function UserInfo() {
                         <span
                           className={cn(
                             'flex items-center',
-                            lastVanillaGame.mmrChange > 0
-                              ? 'text-emerald-500'
-                              : 'text-rose-500'
+                            lastVanillaGame.mmrChange === 0
+                              ? 'text-zink-800 dark:text-zink-200'
+                              : lastVanillaGame.mmrChange > 0
+                                ? 'text-emerald-500'
+                                : 'text-rose-500'
                           )}
                         >
-                          {lastVanillaGame.mmrChange > 0 ? (
+                          {lastVanillaGame.mmrChange === 0 ? (
+                            'Tied'
+                          ) : lastVanillaGame.mmrChange > 0 ? (
                             <ChevronUp className='h-3 w-3' />
                           ) : (
                             <ChevronDown className='h-3 w-3' />
                           )}
-                          {numberFormatter.format(
-                            Math.trunc(lastVanillaGame.mmrChange)
-                          )}{' '}
+                          {lastVanillaGame.mmrChange !== 0
+                            ? numberFormatter.format(
+                                Math.trunc(lastVanillaGame.mmrChange)
+                              )
+                            : null}{' '}
                           last match
                         </span>
                       ) : null
@@ -365,7 +377,7 @@ export function UserInfo() {
               <TabsContent value='matches' className='m-0'>
                 <div className='overflow-hidden rounded-lg border'>
                   <div className='overflow-x-auto'>
-                    <GamesTable games={games} />
+                    <GamesTable games={filteredGames} />
                   </div>
                 </div>
               </TabsContent>

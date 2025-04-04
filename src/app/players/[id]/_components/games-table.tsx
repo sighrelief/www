@@ -20,7 +20,12 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { ArrowDownCircle, ArrowUp, ArrowUpCircle } from 'lucide-react'
+import {
+  ArrowDownCircle,
+  ArrowUp,
+  ArrowUpCircle,
+  MinusCircle,
+} from 'lucide-react'
 import { useFormatter } from 'next-intl'
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
@@ -95,11 +100,17 @@ const useColumns = () => {
             <span
               className={cn(
                 'flex items-center justify-end font-medium font-mono',
-                mmrChange > 0 ? 'text-emerald-500' : 'text-rose-500'
+                mmrChange === 0
+                  ? 'text-zink-800 dark:text-zink-200'
+                  : mmrChange > 0
+                    ? 'text-emerald-500'
+                    : 'text-rose-500'
               )}
             >
               {numberFormatter.format(Math.trunc(mmrChange))}
-              {mmrChange > 0 ? (
+              {mmrChange === 0 ? (
+                <MinusCircle className='ml-1 h-4 w-4' />
+              ) : mmrChange > 0 ? (
                 <ArrowUpCircle className='ml-1 h-4 w-4' />
               ) : (
                 <ArrowDownCircle className='ml-1 h-4 w-4' />
