@@ -395,6 +395,16 @@ function RawLeaderboardTable({
                   onSort={onSort}
                 />
               </TableHead>
+              <TableHead className='text-right'>
+                <SortableHeader
+                  className='w-full justify-end'
+                  column='peak_streak'
+                  label='Peak Streak'
+                  currentSort={sortColumn}
+                  direction={sortDirection}
+                  onSort={onSort}
+                />
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -471,7 +481,7 @@ function RawLeaderboardTable({
                       <TableCell className='text-right font-mono text-slate-600 dark:text-slate-400'>
                         {entry.totalgames}
                       </TableCell>
-                      <TableCell className='text-right'>
+                      <TableCell className='text-right font-mono'>
                         {entry.streak > 0 ? (
                           <span className='flex items-center justify-end text-emerald-600 dark:text-emerald-400'>
                             <ArrowUp className='mr-1 h-3.5 w-3.5' />
@@ -487,6 +497,11 @@ function RawLeaderboardTable({
                         ) : (
                           <span>0</span>
                         )}
+                      </TableCell>
+                      <TableCell className='text-right'>
+                        <span className='flex items-center justify-end font-mono'>
+                          {entry.peak_streak}
+                        </span>
                       </TableCell>
                     </TableRow>
                   </Fragment>
