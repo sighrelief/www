@@ -135,28 +135,28 @@ export function UserInfo() {
     .at(0)
 
   return (
-    <div className='min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900'>
+    <div className='min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-zinc-900 dark:to-zinc-950'>
       <div className='container mx-auto px-4 py-8'>
-        <Card className='overflow-hidden border-none bg-white py-0 shadow-lg dark:bg-slate-900'>
-          <CardHeader className='bg-gradient-to-r from-violet-500 to-purple-600 p-6'>
+        <Card className='overflow-hidden border-none bg-white py-0 shadow-lg dark:bg-zinc-900'>
+          <CardHeader className='border-gray-200 border-b bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900'>
             <div className='flex flex-col items-center gap-6 md:flex-row'>
               <div className='relative'>
-                <Avatar className='h-24 w-24 border-4 border-white shadow-md'>
+                <Avatar className='h-24 w-24 border-4 border-gray-100 shadow-md dark:border-zinc-800'>
                   <AvatarImage
                     src={profileData.avatar}
                     alt={profileData.username}
                   />
-                  <AvatarFallback className='bg-violet-200 font-bold text-2xl text-violet-700'>
+                  <AvatarFallback className='bg-violet-50 font-bold text-2xl text-violet-600 dark:bg-violet-900/30 dark:text-violet-300'>
                     {profileData.username.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
               </div>
 
               <div className='text-center md:text-left'>
-                <h1 className='font-bold text-3xl text-white'>
+                <h1 className='font-bold text-3xl text-gray-900 dark:text-white'>
                   {profileData.username}
                 </h1>
-                <p className='text-sm text-violet-200'>
+                <p className='text-gray-500 text-sm dark:text-zinc-400'>
                   {firstGame ? (
                     <>First game: {dateFormatter.format(firstGame.gameTime)}</>
                   ) : (
@@ -166,26 +166,30 @@ export function UserInfo() {
                 <div className='mt-2 flex flex-wrap items-center justify-center gap-2 md:justify-start'>
                   {!!rankedLeaderboard && (
                     <Badge
-                      variant='secondary'
-                      className='bg-white/20 text-white hover:bg-white/30'
+                      variant='outline'
+                      className='border-gray-200 bg-gray-50 dark:border-zinc-700 dark:bg-zinc-800'
                     >
-                      <Trophy className='mr-1 h-3 w-3' />
-                      Ranked Queue:{' '}
-                      {isNonNullish(rankedUserRank?.rank)
-                        ? `#${rankedUserRank.rank}`
-                        : 'N/A'}
+                      <Trophy className='mr-1 h-3 w-3 text-violet-500' />
+                      <span className='text-gray-700 dark:text-zinc-300'>
+                        Ranked Queue:{' '}
+                        {isNonNullish(rankedUserRank?.rank)
+                          ? `#${rankedUserRank.rank}`
+                          : 'N/A'}
+                      </span>
                     </Badge>
                   )}
                   {!!vanillaLeaderboard && (
                     <Badge
-                      variant='secondary'
-                      className='bg-white/20 text-white hover:bg-white/30'
+                      variant='outline'
+                      className='border-gray-200 bg-gray-50 dark:border-zinc-700 dark:bg-zinc-800'
                     >
-                      <Star className='mr-1 h-3 w-3' />
-                      Vanilla Queue:{' '}
-                      {isNonNullish(vanillaUserRank?.rank)
-                        ? `#${vanillaUserRank.rank}`
-                        : 'N/A'}
+                      <Trophy className='mr-1 h-3 w-3 text-violet-500' />
+                      <span className='text-gray-700 dark:text-zinc-300'>
+                        Vanilla Queue:{' '}
+                        {isNonNullish(vanillaUserRank?.rank)
+                          ? `#${vanillaUserRank.rank}`
+                          : 'N/A'}
+                      </span>
                     </Badge>
                   )}
                 </div>
@@ -194,19 +198,19 @@ export function UserInfo() {
               <div className='flex flex-1 justify-end'>
                 <div className='flex gap-3'>
                   {lastGameLeaderboard1 && (
-                    <div className='hidden rounded-lg bg-white/10 p-3 text-white backdrop-blur-sm md:block'>
-                      <div className='font-medium text-sm'>
+                    <div className='hidden rounded-lg border border-gray-200 bg-gray-50 p-3 md:block dark:border-zinc-700 dark:bg-zinc-800'>
+                      <div className='font-medium text-gray-500 text-sm dark:text-zinc-400'>
                         Ranked Queue MMR
                       </div>
-                      <div className='font-bold text-2xl'>
+                      <div className='font-bold text-2xl text-gray-900 dark:text-white'>
                         {Math.trunc(
                           lastGameLeaderboard1.playerMmr +
                             lastGameLeaderboard1.mmrChange
                         )}
                       </div>
-                      <div className='text-violet-200 text-xs'>
+                      <div className='text-gray-500 text-xs dark:text-zinc-400'>
                         {lastGameLeaderboard1.mmrChange > 0 ? (
-                          <span className='flex items-center text-green-300'>
+                          <span className='flex items-center text-emerald-500'>
                             <ChevronUp className='h-3 w-3' />
                             {numberFormatter.format(
                               Math.trunc(lastGameLeaderboard1.mmrChange)
@@ -214,7 +218,7 @@ export function UserInfo() {
                             last match
                           </span>
                         ) : (
-                          <span className='flex items-center text-red-300'>
+                          <span className='flex items-center text-rose-500'>
                             <ChevronDown className='h-3 w-3' />
                             {numberFormatter.format(
                               Math.trunc(lastGameLeaderboard1.mmrChange)
@@ -227,19 +231,19 @@ export function UserInfo() {
                   )}
 
                   {lastGameLeaderboard2 && (
-                    <div className='hidden rounded-lg bg-white/10 p-3 text-white backdrop-blur-sm md:block'>
-                      <div className='font-medium text-sm'>
-                        Leaderboard 2 MMR
+                    <div className='hidden rounded-lg border border-gray-200 bg-gray-50 p-3 md:block dark:border-zinc-700 dark:bg-zinc-800'>
+                      <div className='font-medium text-gray-500 text-sm dark:text-zinc-400'>
+                        Vanilla Queue MMR
                       </div>
-                      <div className='font-bold text-2xl'>
+                      <div className='font-bold text-2xl text-gray-900 dark:text-white'>
                         {Math.trunc(
                           lastGameLeaderboard2.playerMmr +
                             lastGameLeaderboard2.mmrChange
                         )}
                       </div>
-                      <div className='text-violet-200 text-xs'>
+                      <div className='text-gray-500 text-xs dark:text-zinc-400'>
                         {lastGameLeaderboard2.mmrChange > 0 ? (
-                          <span className='flex items-center text-green-300'>
+                          <span className='flex items-center text-emerald-500'>
                             <ChevronUp className='h-3 w-3' />
                             {numberFormatter.format(
                               Math.trunc(lastGameLeaderboard2.mmrChange)
@@ -247,7 +251,7 @@ export function UserInfo() {
                             last match
                           </span>
                         ) : (
-                          <span className='flex items-center text-red-300'>
+                          <span className='flex items-center text-rose-500'>
                             <ChevronDown className='h-3 w-3' />
                             {numberFormatter.format(
                               Math.trunc(lastGameLeaderboard2.mmrChange)
@@ -264,7 +268,7 @@ export function UserInfo() {
           </CardHeader>
 
           <CardContent className='p-0'>
-            <div className='grid grid-cols-2 divide-x divide-y divide-gray-100 md:grid-cols-4 md:divide-y-0 dark:divide-gray-800'>
+            <div className='grid grid-cols-2 divide-x divide-y divide-gray-100 md:grid-cols-4 md:divide-y-0 dark:divide-zinc-800'>
               <StatsCard
                 title='Games'
                 value={profileData.games}
@@ -296,7 +300,7 @@ export function UserInfo() {
 
             <Tabs defaultValue='matches' className='p-6'>
               <div className='mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center'>
-                <TabsList className='bg-slate-100 dark:bg-slate-800'>
+                <TabsList className='bg-gray-100 dark:bg-zinc-800'>
                   <TabsTrigger value='matches'>Match History</TabsTrigger>
                   <TabsTrigger value='stats'>Statistics</TabsTrigger>
                   <TabsTrigger value='achievements'>Achievements</TabsTrigger>
@@ -304,7 +308,7 @@ export function UserInfo() {
 
                 <div className='flex items-center gap-2'>
                   <div className='mr-2 flex items-center gap-2'>
-                    <Trophy className='h-4 w-4 text-slate-400' />
+                    <Trophy className='h-4 w-4 text-gray-400 dark:text-zinc-400' />
                     <Select
                       value={leaderboardFilter}
                       onValueChange={setLeaderboardFilter}
@@ -320,7 +324,7 @@ export function UserInfo() {
                     </Select>
                   </div>
 
-                  <Filter className='h-4 w-4 text-slate-400' />
+                  <Filter className='h-4 w-4 text-gray-400 dark:text-zinc-400' />
                   <Select value={filter} onValueChange={setFilter}>
                     <SelectTrigger className='h-9 w-[120px]'>
                       <SelectValue placeholder='Filter' />
@@ -340,7 +344,7 @@ export function UserInfo() {
                   <div className='overflow-x-auto'>
                     <Table>
                       <TableHeader>
-                        <TableRow className='bg-slate-50 dark:bg-slate-800/50'>
+                        <TableRow className='bg-gray-50 dark:bg-zinc-800/50'>
                           <TableHead className='w-[100px]'>Game Type</TableHead>
                           <TableHead>Opponent</TableHead>
                           <TableHead className='text-right'>
@@ -367,7 +371,7 @@ export function UserInfo() {
                         {filteredGames.map((game) => (
                           <TableRow
                             key={game.gameId}
-                            className='transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/70'
+                            className='transition-colors hover:bg-gray-50 dark:hover:bg-zinc-800/70'
                           >
                             <TableCell>
                               <Badge
@@ -389,17 +393,17 @@ export function UserInfo() {
                             <TableCell className='text-right font-mono'>
                               {game.mmrChange > 0 ? (
                                 <span className='flex items-center justify-end font-medium text-emerald-500'>
-                                  <ArrowUpCircle className='mr-1 inline h-4 w-4' />
                                   {numberFormatter.format(
                                     Math.trunc(game.mmrChange)
                                   )}
+                                  <ArrowUpCircle className='ml-1 inline h-4 w-4' />
                                 </span>
                               ) : (
                                 <span className='flex items-center justify-end font-medium text-rose-500'>
-                                  <ArrowDownCircle className='mr-1 inline h-4 w-4' />
                                   {numberFormatter.format(
                                     Math.trunc(game.mmrChange)
                                   )}
+                                  <ArrowDownCircle className='ml-1 inline h-4 w-4' />
                                 </span>
                               )}
                             </TableCell>
@@ -412,7 +416,7 @@ export function UserInfo() {
                                     ? 'border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-800 dark:bg-violet-950 dark:text-violet-300'
                                     : game.gameType.toLowerCase() === 'vanilla'
                                       ? 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-300'
-                                      : 'border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300'
+                                      : 'border-zinc-200 bg-zinc-50 text-zinc-700 dark:border-zinc-800 dark:bg-zinc-700 dark:text-zinc-300'
                                 )}
                               >
                                 {game.gameType === 'ranked'
@@ -483,8 +487,8 @@ export function UserInfo() {
                     !vanillaLeaderboard &&
                     !lastGameLeaderboard1 &&
                     !lastGameLeaderboard2 && (
-                      <div className='col-span-2 flex h-40 items-center justify-center rounded-lg border bg-slate-50 dark:bg-slate-800/50'>
-                        <p className='text-slate-500 dark:text-slate-400'>
+                      <div className='col-span-2 flex h-40 items-center justify-center rounded-lg border bg-gray-50 dark:bg-zinc-800/50'>
+                        <p className='text-gray-500 dark:text-zinc-400'>
                           No leaderboard data available
                         </p>
                       </div>
@@ -493,8 +497,8 @@ export function UserInfo() {
               </TabsContent>
 
               <TabsContent value='achievements' className='m-0'>
-                <div className='flex h-40 items-center justify-center rounded-lg border bg-slate-50 dark:bg-slate-800/50'>
-                  <p className='text-slate-500 dark:text-slate-400'>
+                <div className='flex h-40 items-center justify-center rounded-lg border bg-gray-50 dark:bg-zinc-800/50'>
+                  <p className='text-gray-500 dark:text-zinc-400'>
                     Achievements coming soon
                   </p>
                 </div>
@@ -525,11 +529,11 @@ function StatsCard({
   return (
     <div className='flex flex-col items-center p-6 text-center'>
       <div className='mb-2 flex items-center justify-center'>{icon}</div>
-      <h3 className='mb-1 font-medium text-slate-500 text-sm dark:text-slate-400'>
+      <h3 className='mb-1 font-medium text-gray-500 text-sm dark:text-zinc-400'>
         {title}
       </h3>
       <p className={cn('font-bold text-3xl', accentColor)}>{value}</p>
-      <p className='mt-1 text-slate-500 text-xs dark:text-slate-400'>
+      <p className='mt-1 text-gray-500 text-xs dark:text-zinc-400'>
         {description}
       </p>
     </div>
@@ -552,11 +556,11 @@ function LeaderboardStatsCard({
   accentColor = 'text-violet-500',
 }: LeaderboardStatsCardProps) {
   return (
-    <div className='rounded-lg border bg-white p-6 dark:bg-slate-800/20'>
+    <div className='rounded-lg border bg-white p-6 dark:bg-zinc-800/20'>
       <div className='mb-4 flex items-center gap-3'>
         <div
           className={cn(
-            'rounded-full bg-slate-100 p-2 dark:bg-slate-800',
+            'rounded-full bg-gray-100 p-2 dark:bg-zinc-800',
             accentColor
           )}
         >
@@ -567,8 +571,8 @@ function LeaderboardStatsCard({
 
       <div className='grid grid-cols-2 gap-4'>
         {rank !== undefined && (
-          <div className='rounded-lg bg-slate-50 p-4 dark:bg-slate-800/40'>
-            <p className='text-slate-500 text-sm dark:text-slate-400'>Rank</p>
+          <div className='rounded-lg bg-gray-50 p-4 dark:bg-zinc-800/40'>
+            <p className='text-gray-500 text-sm dark:text-zinc-400'>Rank</p>
             <p className={cn('mt-1 font-bold text-2xl', accentColor)}>
               #{rank}
             </p>
@@ -576,15 +580,15 @@ function LeaderboardStatsCard({
         )}
 
         {mmr !== undefined && (
-          <div className='rounded-lg bg-slate-50 p-4 dark:bg-slate-800/40'>
-            <p className='text-slate-500 text-sm dark:text-slate-400'>MMR</p>
+          <div className='rounded-lg bg-gray-50 p-4 dark:bg-zinc-800/40'>
+            <p className='text-gray-500 text-sm dark:text-zinc-400'>MMR</p>
             <p className={cn('mt-1 font-bold text-2xl', accentColor)}>{mmr}</p>
           </div>
         )}
 
         {rank === undefined && mmr === undefined && (
-          <div className='col-span-2 flex h-20 items-center justify-center rounded-lg bg-slate-50 p-4 dark:bg-slate-800/40'>
-            <p className='text-slate-500 dark:text-slate-400'>
+          <div className='col-span-2 flex h-20 items-center justify-center rounded-lg bg-gray-50 p-4 dark:bg-zinc-800/40'>
+            <p className='text-gray-500 dark:text-zinc-400'>
               No data available
             </p>
           </div>

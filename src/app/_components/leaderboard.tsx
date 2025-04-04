@@ -1,11 +1,16 @@
 'use client'
 
 import type React from 'react'
-import { type ComponentPropsWithoutRef, Fragment, useRef } from 'react'
+import {
+  type ComponentPropsWithoutRef,
+  Fragment,
+  useRef,
+  useState,
+} from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import {
   Table,
@@ -34,7 +39,6 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useState } from 'react'
 
 export function LeaderboardPage() {
   const router = useRouter()
@@ -118,41 +122,44 @@ export function LeaderboardPage() {
   }
 
   return (
-    <div className='flex min-h-screen flex-col bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900'>
+    <div className='flex h-screen flex-col overflow-hidden bg-gradient-to-b from-gray-50 to-gray-100 dark:from-zinc-900 dark:to-zinc-950'>
       <div className='container mx-auto flex flex-1 flex-col px-4 py-4'>
-        <Card className='flex flex-1 flex-col overflow-hidden border-none bg-white p-0 shadow-lg dark:bg-slate-900'>
-          <CardHeader className='bg-gradient-to-r from-violet-500 to-purple-600 p-6'>
+        <div className='flex flex-1 flex-col overflow-hidden border-none bg-white p-0 shadow-lg dark:bg-zinc-900'>
+          <div className='border-gray-200 border-b bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900'>
             <div className='flex flex-col items-center justify-between gap-4 md:flex-row'>
               <div>
-                <h1 className='flex items-center gap-2 font-bold text-3xl text-white'>
-                  <Trophy className='h-7 w-7' />
+                <h1 className='flex items-center gap-2 font-bold text-3xl text-gray-900 dark:text-white'>
+                  <Trophy className='h-7 w-7 text-violet-500 dark:text-violet-400' />
                   Leaderboards
                 </h1>
-                <p className='mt-1 text-violet-200'>
+                <p className='mt-1 text-gray-500 dark:text-zinc-400'>
                   View player rankings and statistics
                 </p>
               </div>
 
               <div className='flex items-center gap-3'>
                 <Badge
-                  variant='secondary'
-                  className='bg-white/20 text-white hover:bg-white/30'
+                  variant='outline'
+                  className='border-gray-200 bg-gray-50 dark:border-zinc-700 dark:bg-zinc-800'
                 >
-                  <Users className='mr-1 h-3 w-3' />
-                  {currentLeaderboard.length} Players
+                  <Users className='mr-1 h-3 w-3 text-gray-500 dark:text-zinc-400' />
+                  <span className='text-gray-700 dark:text-zinc-300'>
+                    {currentLeaderboard.length} Players
+                  </span>
                 </Badge>
-
                 <Button
-                  variant='secondary'
+                  variant='outline'
                   size='sm'
-                  className='bg-white/20 text-white hover:bg-white/30'
+                  className='border-gray-200 dark:border-zinc-700'
                 >
-                  <Info className='mr-1 h-4 w-4' />
-                  How Rankings Work
+                  <Info className='mr-1 h-4 w-4 text-gray-500 dark:text-zinc-400' />
+                  <span className='text-gray-700 dark:text-zinc-300'>
+                    How Rankings Work
+                  </span>
                 </Button>
               </div>
             </div>
-          </CardHeader>
+          </div>
 
           <CardContent className='flex flex-1 flex-col p-0'>
             <Tabs
@@ -162,16 +169,16 @@ export function LeaderboardPage() {
               className='flex flex-1 flex-col p-4 md:p-6'
             >
               <div className='mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center'>
-                <TabsList className='bg-slate-100 dark:bg-slate-800'>
+                <TabsList className='border border-gray-200 border-b bg-gray-50 dark:border-zinc-800 dark:bg-zinc-800/50'>
                   <TabsTrigger value='ranked'>Ranked Leaderboard</TabsTrigger>
                   <TabsTrigger value='vanilla'>Vanilla Leaderboard</TabsTrigger>
                 </TabsList>
 
                 <div className='relative w-full sm:w-auto'>
-                  <Search className='absolute top-2.5 left-2.5 h-4 w-4 text-slate-400' />
+                  <Search className='absolute top-2.5 left-2.5 h-4 w-4 text-gray-400 dark:text-zinc-400' />
                   <Input
                     placeholder='Search players...'
-                    className='w-full pl-9 sm:w-[250px]'
+                    className='w-full border-gray-200 bg-white pl-9 sm:w-[250px] dark:border-zinc-700 dark:bg-zinc-900'
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -201,7 +208,7 @@ export function LeaderboardPage() {
               </TabsContent>
             </Tabs>
           </CardContent>
-        </Card>
+        </div>
       </div>
     </div>
   )
@@ -228,7 +235,6 @@ function LeaderboardTable({
 
   // Set a fixed row height for virtualization
   const ROW_HEIGHT = 39 // Adjust based on your actual row height
-  console.log(leaderboard.length)
   // Create virtualizer instance
   const rowVirtualizer = useVirtualizer({
     count: leaderboard.length,
@@ -239,8 +245,6 @@ function LeaderboardTable({
 
   // Get the virtualized rows
   const virtualRows = rowVirtualizer.getVirtualItems()
-  console.log({ virtualRows })
-  console.log(rowVirtualizer.getTotalSize())
   const paddingTop = virtualRows.length > 0 ? (virtualRows?.[0]?.start ?? 0) : 0
   const paddingBottom =
     virtualRows.length > 0
@@ -255,8 +259,8 @@ function LeaderboardTable({
         style={{ maxHeight: 'calc(100vh - 300px)' }}
       >
         <Table>
-          <TableHeader className='sticky top-0 z-10 bg-white dark:bg-slate-900'>
-            <TableRow className=' bg-slate-50 dark:bg-slate-800/50'>
+          <TableHeader className='sticky top-0 z-10 bg-white dark:bg-zinc-900'>
+            <TableRow className='bg-gray-50 dark:bg-zinc-800/50'>
               <TableHead className='w-[80px]'>
                 <SortableHeader
                   className='w-full justify-end'
@@ -364,7 +368,7 @@ function LeaderboardTable({
 
                     <TableRow
                       className={cn(
-                        'transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/70'
+                        'transition-colors hover:bg-gray-50 dark:hover:bg-zinc-800/70'
                       )}
                     >
                       <TableCell className='w-24 font-medium'>
@@ -393,7 +397,7 @@ function LeaderboardTable({
                       <TableCell className='text-right font-mono'>
                         <div className='flex items-center justify-end gap-1'>
                           {Math.round(entry.peak_mmr)}
-                          <TrendingUp className='h-3.5 w-3.5 text-violet-500' />
+                          <TrendingUp className='h-3.5 w-3.5 text-violet-400' />
                         </div>
                       </TableCell>
                       <TableCell className='text-right'>
@@ -405,7 +409,7 @@ function LeaderboardTable({
                               ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
                               : winrate < 40
                                 ? 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800 dark:bg-rose-950 dark:text-rose-300'
-                                : 'border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300'
+                                : 'border-gray-200 bg-gray-50 text-gray-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300'
                           )}
                         >
                           {Math.round(winrate)}%
@@ -444,7 +448,9 @@ function LeaderboardTable({
             ) : (
               <TableRow>
                 <TableCell colSpan={9} className='h-24 text-center'>
-                  No players found
+                  <p className='text-gray-500 dark:text-zinc-400'>
+                    No players found
+                  </p>
                 </TableCell>
               </TableRow>
             )}
@@ -483,7 +489,7 @@ function SortableHeader({
     <button
       type={'button'}
       className={cn(
-        'flex items-center gap-1 transition-colors hover:text-violet-600 dark:hover:text-violet-400',
+        'flex items-center gap-1 transition-colors hover:text-violet-500 dark:hover:text-violet-400',
         className
       )}
       {...rest}
