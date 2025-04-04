@@ -41,8 +41,6 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
 })
 
 export function UserInfo() {
-  const format = useFormatter()
-
   const [filter, setFilter] = useState('all')
   const [leaderboardFilter, setLeaderboardFilter] = useState('all')
   const { id } = useParams()
