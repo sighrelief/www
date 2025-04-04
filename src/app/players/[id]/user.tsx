@@ -3,6 +3,7 @@
 import type React from 'react'
 import { useState } from 'react'
 
+import { GamesTable } from '@/app/players/[id]/_components/games-table'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
@@ -13,14 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { RANKED_CHANNEL, VANILLA_CHANNEL } from '@/shared/constants'
@@ -29,10 +22,8 @@ import {
   ArrowDownCircle,
   ArrowUpCircle,
   BarChart3,
-  Calendar,
   ChevronDown,
   ChevronUp,
-  Clock,
   Filter,
   MinusCircle,
   Star,
@@ -342,107 +333,7 @@ export function UserInfo() {
               <TabsContent value='matches' className='m-0'>
                 <div className='overflow-hidden rounded-lg border'>
                   <div className='overflow-x-auto'>
-                    <Table>
-                      <TableHeader>
-                        <TableRow className='bg-gray-50 dark:bg-zinc-800/50'>
-                          <TableHead className='w-[100px]'>Game Type</TableHead>
-                          <TableHead>Opponent</TableHead>
-                          <TableHead className='text-right'>
-                            Opponent MMR
-                          </TableHead>
-                          <TableHead className='text-right'>MMR</TableHead>
-                          <TableHead className='text-right'>Result</TableHead>
-                          <TableHead className='text-center'>
-                            Leaderboard
-                          </TableHead>
-                          <TableHead className='text-right'>
-                            <span className='flex items-center justify-end gap-1'>
-                              <Calendar className='h-4 w-4' /> Date
-                            </span>
-                          </TableHead>
-                          <TableHead className='text-right'>
-                            <span className='flex items-center justify-end gap-1'>
-                              <Clock className='h-4 w-4' /> Time
-                            </span>
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredGames.map((game) => (
-                          <TableRow
-                            key={game.gameId}
-                            className='transition-colors hover:bg-gray-50 dark:hover:bg-zinc-800/70'
-                          >
-                            <TableCell>
-                              <Badge
-                                variant='outline'
-                                className='font-normal capitalize'
-                              >
-                                {game.gameType}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className='font-medium'>
-                              {game.opponentName}
-                            </TableCell>
-                            <TableCell className='text-right font-mono'>
-                              {Math.trunc(game.opponentMmr)}
-                            </TableCell>
-                            <TableCell className='text-right font-mono'>
-                              {Math.trunc(game.playerMmr)}
-                            </TableCell>
-                            <TableCell className='text-right font-mono'>
-                              {game.mmrChange > 0 ? (
-                                <span className='flex items-center justify-end font-medium text-emerald-500'>
-                                  {numberFormatter.format(
-                                    Math.trunc(game.mmrChange)
-                                  )}
-                                  <ArrowUpCircle className='ml-1 inline h-4 w-4' />
-                                </span>
-                              ) : (
-                                <span className='flex items-center justify-end font-medium text-rose-500'>
-                                  {numberFormatter.format(
-                                    Math.trunc(game.mmrChange)
-                                  )}
-                                  <ArrowDownCircle className='ml-1 inline h-4 w-4' />
-                                </span>
-                              )}
-                            </TableCell>
-                            <TableCell className='text-center'>
-                              <Badge
-                                variant='outline'
-                                className={cn(
-                                  'w-full font-normal',
-                                  game.gameType === 'ranked'
-                                    ? 'border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-800 dark:bg-violet-950 dark:text-violet-300'
-                                    : game.gameType.toLowerCase() === 'vanilla'
-                                      ? 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-300'
-                                      : 'border-zinc-200 bg-zinc-50 text-zinc-700 dark:border-zinc-800 dark:bg-zinc-700 dark:text-zinc-300'
-                                )}
-                              >
-                                {game.gameType === 'ranked'
-                                  ? 'Ranked Queue'
-                                  : game.gameType.toLowerCase() === 'vanilla'
-                                    ? 'Vanilla Queue'
-                                    : 'N/A'}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className='text-right font-mono text-slate-500 dark:text-slate-400'>
-                              {format.dateTime(game.gameTime, {
-                                year: 'numeric',
-                                month: '2-digit',
-                                day: '2-digit',
-                              })}
-                            </TableCell>
-                            <TableCell className='text-right font-mono text-slate-500 dark:text-slate-400'>
-                              {format.dateTime(game.gameTime, {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                    <GamesTable games={games} />
                   </div>
                 </div>
               </TabsContent>
