@@ -57,11 +57,16 @@ export type Data = {
   winrate: number
 }
 
-export type LeaderboardEntry = {
+export type LeaderboardEntryInternal = {
   id: string
   data: Data
   name: string
 }
 export type LeaderboardResponse = {
-  alltime: LeaderboardEntry[]
+  alltime: LeaderboardEntryInternal[]
+}
+
+export type LeaderboardEntry = Data & {
+  id: string
+  name: string
 }

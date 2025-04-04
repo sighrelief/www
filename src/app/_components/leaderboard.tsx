@@ -241,7 +241,7 @@ function LeaderboardTable({
   const virtualRows = rowVirtualizer.getVirtualItems()
   console.log({ virtualRows })
   console.log(rowVirtualizer.getTotalSize())
-  const paddingTop = virtualRows.length > 0 ? virtualRows?.[0]?.start : 0
+  const paddingTop = virtualRows.length > 0 ? (virtualRows?.[0]?.start ?? 0) : 0
   const paddingBottom =
     virtualRows.length > 0
       ? rowVirtualizer.getTotalSize() -
