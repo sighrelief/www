@@ -9,7 +9,6 @@ import {
 } from 'react'
 
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import {
@@ -30,7 +29,6 @@ import {
   ArrowUp,
   ArrowUpDown,
   Flame,
-  Info,
   Medal,
   Search,
   TrendingUp,
@@ -370,13 +368,15 @@ function LeaderboardTable({
                       <TableCell>
                         <Link
                           href={`/players/${entry.id}`}
-                          className='flex items-center gap-2 hover:underline'
+                          className='group flex items-center gap-2'
                         >
-                          <span className='font-medium'>{entry.name}</span>
+                          <span className='font-medium group-hover:underline'>
+                            {entry.name}
+                          </span>
                           {entry.streak >= 3 && (
-                            <Badge className='bg-orange-500 text-white'>
+                            <Badge className='bg-orange-500 text-white hover:no-underline'>
+                              Can't stop winning
                               <Flame className='mr-1 h-3 w-3' />
-                              Hot Streak
                             </Badge>
                           )}
                         </Link>
