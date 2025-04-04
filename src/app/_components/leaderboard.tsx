@@ -76,7 +76,6 @@ export function LeaderboardPage() {
   const filteredLeaderboard = currentLeaderboard.filter((entry) =>
     entry.name.toLowerCase().includes(searchQuery.toLowerCase())
   )
-  console.log(filteredLeaderboard)
   // Sort leaderboard
   const sortedLeaderboard = [...filteredLeaderboard].sort((a, b) => {
     // biome-ignore lint/style/useSingleVarDeclarator: <explanation>

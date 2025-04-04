@@ -112,7 +112,6 @@ export function UserInfo() {
   }
 
   const aliases = [...new Set(games.map((g) => g.playerName))]
-  console.log(aliases)
   const lastGame = games.at(0)
 
   const currentName = lastGame?.playerName ?? discord_user.username
