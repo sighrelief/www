@@ -136,7 +136,7 @@ export function UserInfo() {
 
   return (
     <div className='min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-zinc-900 dark:to-zinc-950'>
-      <div className='container mx-auto px-4 py-8'>
+      <div className='container mx-auto'>
         <Card className='overflow-hidden border-none bg-white py-0 shadow-lg dark:bg-zinc-900'>
           <CardHeader className='border-gray-200 border-b bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900'>
             <div className='flex flex-col items-center gap-6 md:flex-row'>

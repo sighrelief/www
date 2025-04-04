@@ -123,7 +123,7 @@ export function LeaderboardPage() {
 
   return (
     <div className='flex h-screen flex-col overflow-hidden bg-gradient-to-b from-gray-50 to-gray-100 dark:from-zinc-900 dark:to-zinc-950'>
-      <div className='container mx-auto flex flex-1 flex-col px-4 py-4'>
+      <div className='container mx-auto flex flex-1 flex-col'>
         <div className='flex flex-1 flex-col overflow-hidden border-none bg-white p-0 shadow-lg dark:bg-zinc-900'>
           <div className='border-gray-200 border-b bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900'>
             <div className='flex flex-col items-center justify-between gap-4 md:flex-row'>
