@@ -25,11 +25,12 @@ import {
   ChevronDown,
   ChevronUp,
   Filter,
+  IceCreamCone,
   MinusCircle,
+  ShieldHalf,
   Star,
   Trophy,
 } from 'lucide-react'
-import { useFormatter } from 'next-intl'
 import { useParams } from 'next/navigation'
 import { isNonNullish } from 'remeda'
 
@@ -71,6 +72,7 @@ export function UserInfo() {
     channel_id: RANKED_CHANNEL,
     user_id: id,
   })
+  console.log({ vanillaUserRank, rankedUserRank })
 
   // Filter games by leaderboard if needed
   const filteredGamesByLeaderboard =
@@ -116,10 +118,10 @@ export function UserInfo() {
   const firstGame = games.at(-1)
 
   // Get last games for each leaderboard
-  const lastGameLeaderboard1 = games
+  const lastRankedGame = games
     .filter((game) => game.gameType === 'ranked')
     .at(0)
-  const lastGameLeaderboard2 = games
+  const lastVanillaGame = games
     .filter((game) => game.gameType.toLowerCase() === 'vanilla')
     .at(0)
 
@@ -183,110 +185,112 @@ export function UserInfo() {
                   )}
                 </div>
               </div>
-
-              <div className='flex flex-1 justify-end'>
-                <div className='flex gap-3'>
-                  {lastGameLeaderboard1 && (
-                    <div className='hidden rounded-lg border border-gray-200 bg-gray-50 p-3 md:block dark:border-zinc-700 dark:bg-zinc-800'>
-                      <div className='font-medium text-gray-500 text-sm dark:text-zinc-400'>
-                        Ranked Queue MMR
-                      </div>
-                      <div className='font-bold text-2xl text-gray-900 dark:text-white'>
-                        {Math.trunc(
-                          lastGameLeaderboard1.playerMmr +
-                            lastGameLeaderboard1.mmrChange
-                        )}
-                      </div>
-                      <div className='text-gray-500 text-xs dark:text-zinc-400'>
-                        {lastGameLeaderboard1.mmrChange > 0 ? (
-                          <span className='flex items-center text-emerald-500'>
+              <div
+                className={cn(
+                  'grid w-full flex-grow grid-cols-2 divide-gray-100 md:w-auto md:grid-cols-3 md:divide-y-0 dark:divide-zinc-800',
+                  isNonNullish(rankedUserRank?.mmr) && 'lg:grid-cols-5',
+                  isNonNullish(vanillaUserRank?.mmr) && 'lg:grid-cols-5',
+                  isNonNullish(rankedUserRank?.mmr) &&
+                    isNonNullish(vanillaUserRank?.mmr) &&
+                    'lg:grid-cols-6'
+                )}
+              >
+                <StatsCard
+                  title='Games'
+                  value={profileData.games}
+                  icon={<BarChart3 className='h-5 w-5 text-violet-500' />}
+                  description='Total matches'
+                />
+                <StatsCard
+                  title='Wins'
+                  value={profileData.wins}
+                  icon={<ArrowUpCircle className='h-5 w-5 text-emerald-500' />}
+                  description={`${profileData.winRate}% win rate`}
+                  accentColor='text-emerald-500'
+                />
+                <StatsCard
+                  title='Losses'
+                  value={profileData.losses}
+                  icon={<ArrowDownCircle className='h-5 w-5 text-rose-500' />}
+                  description={`${profileData.games > 0 ? Math.round((profileData.losses / profileData.games) * 100) : 0}% loss rate`}
+                  accentColor='text-rose-500'
+                />
+                <StatsCard
+                  title='Ties'
+                  value={profileData.ties}
+                  icon={<MinusCircle className='h-5 w-5 text-amber-500' />}
+                  description={`${profileData.games > 0 ? Math.round((profileData.ties / profileData.games) * 100) : 0}% tie rate`}
+                  accentColor='text-amber-500'
+                />
+                {isNonNullish(rankedUserRank?.mmr) && (
+                  <StatsCard
+                    title='Ranked MMR'
+                    value={Math.round(rankedUserRank.mmr)}
+                    description={
+                      lastRankedGame ? (
+                        <span
+                          className={cn(
+                            'flex items-center',
+                            lastRankedGame.mmrChange > 0
+                              ? 'text-emerald-500'
+                              : 'text-rose-500'
+                          )}
+                        >
+                          {lastRankedGame.mmrChange > 0 ? (
                             <ChevronUp className='h-3 w-3' />
-                            {numberFormatter.format(
-                              Math.trunc(lastGameLeaderboard1.mmrChange)
-                            )}{' '}
-                            last match
-                          </span>
-                        ) : (
-                          <span className='flex items-center text-rose-500'>
+                          ) : (
                             <ChevronDown className='h-3 w-3' />
-                            {numberFormatter.format(
-                              Math.trunc(lastGameLeaderboard1.mmrChange)
-                            )}{' '}
-                            last match
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {lastGameLeaderboard2 && (
-                    <div className='hidden rounded-lg border border-gray-200 bg-gray-50 p-3 md:block dark:border-zinc-700 dark:bg-zinc-800'>
-                      <div className='font-medium text-gray-500 text-sm dark:text-zinc-400'>
-                        Vanilla Queue MMR
-                      </div>
-                      <div className='font-bold text-2xl text-gray-900 dark:text-white'>
-                        {Math.trunc(
-                          lastGameLeaderboard2.playerMmr +
-                            lastGameLeaderboard2.mmrChange
-                        )}
-                      </div>
-                      <div className='text-gray-500 text-xs dark:text-zinc-400'>
-                        {lastGameLeaderboard2.mmrChange > 0 ? (
-                          <span className='flex items-center text-emerald-500'>
+                          )}
+                          {numberFormatter.format(
+                            Math.trunc(lastRankedGame.mmrChange)
+                          )}{' '}
+                          last match
+                        </span>
+                      ) : null
+                    }
+                    icon={
+                      <ShieldHalf className='h-5 w-5 text-zink-800 dark:text-zink-200' />
+                    }
+                    accentColor='text-zink-800 dark:text-zink-200'
+                  />
+                )}
+                {isNonNullish(vanillaUserRank?.mmr) && (
+                  <StatsCard
+                    title='Vanilla MMR'
+                    value={Math.round(vanillaUserRank.mmr)}
+                    icon={
+                      <IceCreamCone className='h-5 w-5 text-zink-800 dark:text-zink-200' />
+                    }
+                    accentColor='text-zink-800 dark:text-zink-200'
+                    description={
+                      lastVanillaGame ? (
+                        <span
+                          className={cn(
+                            'flex items-center',
+                            lastVanillaGame.mmrChange > 0
+                              ? 'text-emerald-500'
+                              : 'text-rose-500'
+                          )}
+                        >
+                          {lastVanillaGame.mmrChange > 0 ? (
                             <ChevronUp className='h-3 w-3' />
-                            {numberFormatter.format(
-                              Math.trunc(lastGameLeaderboard2.mmrChange)
-                            )}{' '}
-                            last match
-                          </span>
-                        ) : (
-                          <span className='flex items-center text-rose-500'>
+                          ) : (
                             <ChevronDown className='h-3 w-3' />
-                            {numberFormatter.format(
-                              Math.trunc(lastGameLeaderboard2.mmrChange)
-                            )}{' '}
-                            last match
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
+                          )}
+                          {numberFormatter.format(
+                            Math.trunc(lastVanillaGame.mmrChange)
+                          )}{' '}
+                          last match
+                        </span>
+                      ) : null
+                    }
+                  />
+                )}
               </div>
             </div>
           </CardHeader>
 
           <CardContent className='p-0'>
-            <div className='grid grid-cols-2 divide-x divide-y divide-gray-100 md:grid-cols-4 md:divide-y-0 dark:divide-zinc-800'>
-              <StatsCard
-                title='Games'
-                value={profileData.games}
-                icon={<BarChart3 className='h-5 w-5 text-violet-500' />}
-                description='Total matches'
-              />
-              <StatsCard
-                title='Wins'
-                value={profileData.wins}
-                icon={<ArrowUpCircle className='h-5 w-5 text-emerald-500' />}
-                description={`${profileData.winRate}% win rate`}
-                accentColor='text-emerald-500'
-              />
-              <StatsCard
-                title='Losses'
-                value={profileData.losses}
-                icon={<ArrowDownCircle className='h-5 w-5 text-rose-500' />}
-                description={`${profileData.games > 0 ? Math.round((profileData.losses / profileData.games) * 100) : 0}% loss rate`}
-                accentColor='text-rose-500'
-              />
-              <StatsCard
-                title='Ties'
-                value={profileData.ties}
-                icon={<MinusCircle className='h-5 w-5 text-amber-500' />}
-                description={`${profileData.games > 0 ? Math.round((profileData.ties / profileData.games) * 100) : 0}% tie rate`}
-                accentColor='text-amber-500'
-              />
-            </div>
-
             <Tabs defaultValue='matches' className='p-6'>
               <div className='mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center'>
                 <TabsList className='bg-gray-100 dark:bg-zinc-800'>
@@ -338,15 +342,15 @@ export function UserInfo() {
 
               <TabsContent value='stats' className='m-0'>
                 <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-                  {(rankedLeaderboard || lastGameLeaderboard1) && (
+                  {(rankedLeaderboard || lastRankedGame) && (
                     <LeaderboardStatsCard
                       title='Ranked Queue Stats'
                       rank={rankedUserRank?.rank}
                       mmr={
-                        lastGameLeaderboard1
+                        lastRankedGame
                           ? Math.trunc(
-                              lastGameLeaderboard1.playerMmr +
-                                lastGameLeaderboard1.mmrChange
+                              lastRankedGame.playerMmr +
+                                lastRankedGame.mmrChange
                             )
                           : undefined
                       }
@@ -355,15 +359,15 @@ export function UserInfo() {
                     />
                   )}
 
-                  {(vanillaLeaderboard || lastGameLeaderboard2) && (
+                  {(vanillaLeaderboard || lastVanillaGame) && (
                     <LeaderboardStatsCard
                       title='Vanilla Queue Stats'
                       rank={vanillaUserRank?.rank}
                       mmr={
-                        lastGameLeaderboard2
+                        lastVanillaGame
                           ? Math.trunc(
-                              lastGameLeaderboard2.playerMmr +
-                                lastGameLeaderboard2.mmrChange
+                              lastVanillaGame.playerMmr +
+                                lastVanillaGame.mmrChange
                             )
                           : undefined
                       }
@@ -374,8 +378,8 @@ export function UserInfo() {
 
                   {!rankedLeaderboard &&
                     !vanillaLeaderboard &&
-                    !lastGameLeaderboard1 &&
-                    !lastGameLeaderboard2 && (
+                    !lastRankedGame &&
+                    !lastVanillaGame && (
                       <div className='col-span-2 flex h-40 items-center justify-center rounded-lg border bg-gray-50 dark:bg-zinc-800/50'>
                         <p className='text-gray-500 dark:text-zinc-400'>
                           No leaderboard data available
@@ -404,7 +408,7 @@ interface StatsCardProps {
   title: string
   value: number
   icon: React.ReactNode
-  description: string
+  description: React.ReactNode
   accentColor?: string
 }
 
@@ -416,12 +420,14 @@ function StatsCard({
   accentColor = 'text-violet-500',
 }: StatsCardProps) {
   return (
-    <div className='flex flex-col items-center p-6 text-center'>
-      <div className='mb-2 flex items-center justify-center'>{icon}</div>
-      <h3 className='mb-1 font-medium text-gray-500 text-sm dark:text-zinc-400'>
+    <div className='flex w-fit flex-col items-start justify-self-center p-2 text-center md:justify-self-auto'>
+      <h3 className='mb-1 text-nowrap font-medium text-gray-500 text-sm dark:text-zinc-400'>
         {title}
       </h3>
-      <p className={cn('font-bold text-3xl', accentColor)}>{value}</p>
+      <div className={'flex items-center gap-2'}>
+        <div className='flex items-center justify-center'>{icon}</div>
+        <p className={cn('font-bold text-3xl', accentColor)}>{value}</p>
+      </div>
       <p className='mt-1 text-gray-500 text-xs dark:text-zinc-400'>
         {description}
       </p>
