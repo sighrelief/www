@@ -1,20 +1,20 @@
 import '@/styles/globals.css'
 
-import type { Metadata } from 'next'
-import { Geist } from 'next/font/google'
+import type {Metadata} from 'next'
+import {Geist} from 'next/font/google'
 
-import { MainHeader } from '@/components/header'
-import { ThemeProvider } from '@/components/theme-provider'
-import { TRPCReactProvider } from '@/trpc/react'
-import { SessionProvider } from 'next-auth/react'
-import { NextIntlClientProvider } from 'next-intl'
-import { getLocale } from 'next-intl/server'
+import {MainHeader} from '@/components/header'
+import {ThemeProvider} from '@/components/theme-provider'
+import {TRPCReactProvider} from '@/trpc/react'
+import {SessionProvider} from 'next-auth/react'
+import {NextIntlClientProvider} from 'next-intl'
+import {getLocale} from 'next-intl/server'
 import PlausibleProvider from 'next-plausible'
 
 export const metadata: Metadata = {
   title: 'Balatro Multiplayer',
   description: 'Unofficial (for now) stats for the Balatro Multiplayer Mod',
-  icons: [{ rel: 'icon', url: '/favicon.ico' }],
+  icons: [{rel: 'icon', url: '/favicon.ico'}],
 }
 
 const geist = Geist({
@@ -23,8 +23,8 @@ const geist = Geist({
 })
 
 export default async function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+                                           children,
+                                         }: Readonly<{ children: React.ReactNode }>) {
   const locale = await getLocale()
   return (
     <html
@@ -32,33 +32,33 @@ export default async function RootLayout({
       className={`${geist.variable}`}
       suppressHydrationWarning
     >
-      <head>
-        <title />
-        <PlausibleProvider
-          domain='balatromp.com'
-          customDomain={'https://plausible.balatromp.com'}
-          trackOutboundLinks
-          trackFileDownloads
-          selfHosted
-        />
-      </head>
-      <body>
-        <TRPCReactProvider>
-          <NextIntlClientProvider>
-            <SessionProvider>
-              <ThemeProvider
-                attribute='class'
-                defaultTheme='system'
-                enableSystem
-                disableTransitionOnChange
-              >
-                <MainHeader />
-                {children}
-              </ThemeProvider>
-            </SessionProvider>
-          </NextIntlClientProvider>
-        </TRPCReactProvider>
-      </body>
+    <head>
+      <title/>
+      <PlausibleProvider
+        domain='balatromp.com'
+        customDomain={'https://plausible.balatromp.com'}
+        trackOutboundLinks
+        trackFileDownloads
+        selfHosted
+      />
+    </head>
+    <body>
+    <TRPCReactProvider>
+      <NextIntlClientProvider>
+        <SessionProvider>
+          <ThemeProvider
+            attribute='class'
+            defaultTheme='system'
+            enableSystem
+            disableTransitionOnChange
+          >
+
+            {children}
+          </ThemeProvider>
+        </SessionProvider>
+      </NextIntlClientProvider>
+    </TRPCReactProvider>
+    </body>
     </html>
   )
 }
