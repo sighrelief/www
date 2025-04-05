@@ -9,6 +9,7 @@ import { TRPCReactProvider } from '@/trpc/react'
 import { SessionProvider } from 'next-auth/react'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale } from 'next-intl/server'
+import PlausibleProvider from 'next-plausible'
 
 export const metadata: Metadata = {
   title: 'Balatro Multiplayer',
@@ -31,6 +32,16 @@ export default async function RootLayout({
       className={`${geist.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        <title />
+        <PlausibleProvider
+          domain='balatromp.com'
+          customDomain={'https://plausible.balatromp.com'}
+          trackOutboundLinks
+          trackFileDownloads
+          selfHosted
+        />
+      </head>
       <body>
         <TRPCReactProvider>
           <NextIntlClientProvider>
