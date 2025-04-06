@@ -1,13 +1,13 @@
 'use client'
 
 import type React from 'react'
-import { useCallback } from 'react'
-import { memo } from 'react'
-import { useEffect } from 'react'
-import { useMemo } from 'react'
 import {
   type ComponentPropsWithoutRef,
   Fragment,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react'
@@ -25,7 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { RANKED_CHANNEL, VANILLA_CHANNEL } from '@/shared/constants'
 import { api } from '@/trpc/react'
@@ -43,12 +43,14 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
+
 const getMedal = (rank: number) => {
   if (rank === 1) return <Medal className='h-5 w-5 text-yellow-500' />
   if (rank === 2) return <Medal className='h-5 w-5 text-slate-400' />
   if (rank === 3) return <Medal className='h-5 w-5 text-amber-700' />
   return null
 }
+
 export function LeaderboardPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -165,96 +167,66 @@ export function LeaderboardPage() {
     [sortColumn, sortDirection]
   )
 
-  // Get medal for top 3 players
-
   return (
-    <div className='flex h-screen flex-col overflow-hidden bg-gradient-to-b from-gray-50 to-gray-100 dark:from-zinc-900 dark:to-zinc-950'>
-      <div className='container mx-auto flex flex-1 flex-col'>
-        <div className='flex flex-1 flex-col overflow-hidden border-none dark:bg-zinc-900'>
-          <div className='border-gray-200 border-b bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900'>
-            <div className='flex flex-col items-center justify-between gap-4 md:flex-row'>
-              <div>
-                <h1 className='flex items-center gap-2 font-bold text-3xl text-gray-900 dark:text-white'>
-                  <Trophy className='h-7 w-7 text-violet-500 dark:text-violet-400' />
-                  Leaderboards
-                </h1>
-                <p className='mt-1 text-gray-500 dark:text-zinc-400'>
-                  View player rankings and statistics
-                </p>
-              </div>
-
-              <div className='flex items-center gap-3'>
-                <Badge
-                  variant='outline'
-                  className='border-gray-200 bg-gray-50 dark:border-zinc-700 dark:bg-zinc-800'
-                >
-                  <Users className='mr-1 h-3 w-3 text-gray-500 dark:text-zinc-400' />
-                  <span className='text-gray-700 dark:text-zinc-300'>
-                    {currentLeaderboard.length} Players
-                  </span>
-                </Badge>
-              </div>
-            </div>
-          </div>
-
-          <CardContent className='flex flex-1 flex-col p-0'>
-            <Tabs
-              defaultValue={leaderboardType}
-              value={leaderboardType}
-              onValueChange={handleTabChange}
-              className='flex flex-1 flex-col p-4 md:p-6'
-            >
-              <div className='mb-6 flex w-full flex-col items-start justify-between gap-4 md:items-center lg:flex-row'>
-                <TabsList className='border border-gray-200 border-b bg-gray-50 dark:border-zinc-800 dark:bg-zinc-800/50'>
-                  <TabsTrigger value='ranked'>Ranked Leaderboard</TabsTrigger>
-                  <TabsTrigger value='vanilla'>Vanilla Leaderboard</TabsTrigger>
-                </TabsList>
-                <div
-                  className={
-                    'flex w-full flex-col items-center justify-end gap-2 lg:w-fit lg:flex-row lg:gap-4'
-                  }
-                >
-                  <div className={'flex w-full flex-col gap-1 md:w-[300px]'}>
-                    <Label>Games</Label>
-                    <div className='flex w-full items-center gap-2'>
-                      <span>{gamesAmount[0]}</span>
-                      <Slider
-                        value={sliderValue}
-                        onValueCommit={handleGamesAmountSliderCommit}
-                        max={maxGamesAmount}
-                        onValueChange={handleGamesAmountSliderChange}
-                        step={1}
-                        className={cn('w-full')}
-                      />
-                      <span>{gamesAmount[1]}</span>
-                    </div>
+    <div className='flex flex-1 flex-col overflow-hidden'>
+      <div className=' mx-auto flex w-[calc(100%-1rem)] max-w-fd-container flex-1 flex-col'>
+        <div className='flex flex-1 flex-col overflow-hidden border-none'>
+          <Tabs
+            defaultValue={leaderboardType}
+            value={leaderboardType}
+            onValueChange={handleTabChange}
+            className='flex flex-1 flex-col px-0 py-4 md:py-6'
+          >
+            <div className='mb-6 flex w-full flex-col items-start justify-between gap-4 md:items-center lg:flex-row'>
+              <TabsList className='border border-gray-200 border-b bg-gray-50 dark:border-zinc-800 dark:bg-zinc-800/50'>
+                <TabsTrigger value='ranked'>Ranked Leaderboard</TabsTrigger>
+                <TabsTrigger value='vanilla'>Vanilla Leaderboard</TabsTrigger>
+              </TabsList>
+              <div
+                className={
+                  'flex w-full flex-col items-center justify-end gap-2 lg:w-fit lg:flex-row lg:gap-4'
+                }
+              >
+                <div className={'flex w-full flex-col gap-1 md:w-[300px]'}>
+                  <Label>Games</Label>
+                  <div className='flex w-full items-center gap-2'>
+                    <span>{gamesAmount[0]}</span>
+                    <Slider
+                      value={sliderValue}
+                      onValueCommit={handleGamesAmountSliderCommit}
+                      max={maxGamesAmount}
+                      onValueChange={handleGamesAmountSliderChange}
+                      step={1}
+                      className={cn('w-full')}
+                    />
+                    <span>{gamesAmount[1]}</span>
                   </div>
-                  <div className={'flex w-full flex-col gap-1 md:w-[250px]'}>
-                    <Label>Search players</Label>
-                    <div className='relative w-full sm:w-auto'>
-                      <Search className='absolute top-2.5 left-2.5 h-4 w-4 text-gray-400 dark:text-zinc-400' />
-                      <Input
-                        placeholder='Search players...'
-                        className='w-full border-gray-200 bg-white pl-9 dark:border-zinc-700 dark:bg-zinc-900'
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                      />
-                    </div>
+                </div>
+                <div className={'flex w-full flex-col gap-1 md:w-[250px]'}>
+                  <Label>Search players</Label>
+                  <div className='relative w-full sm:w-auto'>
+                    <Search className='absolute top-2.5 left-2.5 h-4 w-4 text-gray-400 dark:text-zinc-400' />
+                    <Input
+                      placeholder='Search players...'
+                      className='w-full border-gray-200 bg-white pl-9 dark:border-zinc-700 dark:bg-zinc-900'
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
                   </div>
                 </div>
               </div>
+            </div>
 
-              <div className='m-0 flex flex-1 flex-col'>
-                <LeaderboardTable
-                  leaderboard={leaderboardFilteredByGameAmounts}
-                  sortColumn={sortColumn}
-                  sortDirection={sortDirection}
-                  onSort={handleSort}
-                  getMedal={getMedal}
-                />
-              </div>
-            </Tabs>
-          </CardContent>
+            <div className='m-0 flex flex-1 flex-col'>
+              <LeaderboardTable
+                leaderboard={leaderboardFilteredByGameAmounts}
+                sortColumn={sortColumn}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+                getMedal={getMedal}
+              />
+            </div>
+          </Tabs>
         </div>
       </div>
     </div>

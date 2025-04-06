@@ -20,7 +20,6 @@ export default async function Home() {
   return (
     <Suspense>
       <HydrateClient>
-        {/*<UserStats/>*/}
         <LeaderboardPage />
       </HydrateClient>
     </Suspense>
