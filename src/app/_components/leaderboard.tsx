@@ -169,7 +169,7 @@ export function LeaderboardPage() {
 
   return (
     <div className='flex flex-1 flex-col overflow-hidden'>
-      <div className=' mx-auto flex w-[calc(100%-1rem)] max-w-fd-container flex-1 flex-col'>
+      <div className='mx-auto flex w-[calc(100%-1rem)] max-w-fd-container flex-1 flex-col'>
         <div className='flex flex-1 flex-col overflow-hidden border-none'>
           <Tabs
             defaultValue={leaderboardType}
@@ -273,7 +273,7 @@ function RawLeaderboardTable({
       <div
         ref={tableContainerRef}
         className='flex-1 overflow-auto overflow-x-auto'
-        style={{ maxHeight: 'calc(100vh - 300px)' }}
+        style={{ maxHeight: 'calc(100vh - 200px)' }}
       >
         <Table>
           <TableHeader className='sticky top-0 z-10 bg-white dark:bg-zinc-900'>

@@ -4,7 +4,6 @@ import type { ReactNode } from 'react'
 import { source } from '../../../lib/source'
 
 export default function Layout({ children }: { children: ReactNode }) {
-  console.log(baseOptions)
   return (
     <DocsLayout {...baseOptions} tree={source.pageTree}>
       {children}

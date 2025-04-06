@@ -9,7 +9,6 @@ export default async function PlayerPage({
 }: {
   params: Promise<{ id: string }>
 }) {
-  const session = await auth()
   const { id } = await params
   if (id) {
     await Promise.all([

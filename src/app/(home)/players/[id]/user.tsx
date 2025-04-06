@@ -5,14 +5,13 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
+} from '@/components/ui/mobile-tooltip'
 import type React from 'react'
 import { useState } from 'react'
 
 import { GamesTable } from '@/app/players/[id]/_components/games-table'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import {
   Select,
   SelectContent,
@@ -78,7 +77,6 @@ export function UserInfo() {
     channel_id: RANKED_CHANNEL,
     user_id: id,
   })
-  console.log({ vanillaUserRank, rankedUserRank })
 
   // Filter games by leaderboard if needed
   const filteredGamesByLeaderboard =
@@ -142,304 +140,298 @@ export function UserInfo() {
     .at(0)
 
   return (
-    <div className='min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-zinc-900 dark:to-zinc-950'>
-      <div className='container mx-auto'>
-        <Card className='overflow-hidden border-none bg-white py-0 shadow-lg dark:bg-zinc-900'>
-          <CardHeader className='border-gray-200 border-b bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900'>
-            <div className='flex flex-col items-center gap-6 md:flex-row'>
-              <div className='relative'>
-                <Avatar className='h-24 w-24 border-4 border-gray-100 shadow-md dark:border-zinc-800'>
-                  <AvatarImage
-                    src={profileData.avatar}
-                    alt={profileData.username}
-                  />
-                  <AvatarFallback className='bg-violet-50 font-bold text-2xl text-violet-600 dark:bg-violet-900/30 dark:text-violet-300'>
-                    {profileData.username.slice(0, 2).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+    <div className='flex flex-1 flex-col overflow-hidden'>
+      <div className='mx-auto flex w-[calc(100%-1rem)] max-w-fd-container flex-1 flex-col'>
+        <div className='py-8'>
+          <div className='flex flex-col items-center gap-6 md:flex-row'>
+            <div className='relative'>
+              <Avatar className='size-24'>
+                <AvatarImage
+                  src={profileData.avatar}
+                  alt={profileData.username}
+                />
+                <AvatarFallback className='bg-violet-50 font-bold text-2xl text-violet-600 dark:bg-violet-900/30 dark:text-violet-300'>
+                  {profileData.username.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+
+            <div className='text-center md:text-left'>
+              <div className={'flex items-start gap-2'}>
+                <h1 className='font-bold text-3xl text-gray-900 dark:text-white'>
+                  {profileData.username}
+                </h1>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <InfoIcon className={'size-4'} />
+                    </TooltipTrigger>
+                    <TooltipContent align={'center'} sideOffset={5}>
+                      <div>
+                        <p>Also known as:</p>
+                        <ul className={'list-disc pl-4'}>
+                          {aliases.map((alias) => (
+                            <li key={alias}>{alias}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
 
-              <div className='text-center md:text-left'>
-                <div className={'flex items-start gap-2'}>
-                  <h1 className='font-bold text-3xl text-gray-900 dark:text-white'>
-                    {profileData.username}
-                  </h1>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <InfoIcon className={'size-4'} />
-                      </TooltipTrigger>
-                      <TooltipContent align={'center'} sideOffset={5}>
-                        <div>
-                          <p>Also known as:</p>
-                          <ul className={'list-disc pl-4'}>
-                            {aliases.map((alias) => (
-                              <li key={alias}>{alias}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-
-                <p className='text-gray-500 text-sm dark:text-zinc-400'>
-                  {firstGame ? (
-                    <>First game: {dateFormatter.format(firstGame.gameTime)}</>
-                  ) : (
-                    <>No games played yet</>
-                  )}
-                </p>
-                <div className='mt-2 flex flex-wrap items-center justify-center gap-2 md:justify-start'>
-                  {!!rankedLeaderboard && (
-                    <Badge
-                      variant='outline'
-                      className='border-gray-200 bg-gray-50 dark:border-zinc-700 dark:bg-zinc-800'
-                    >
-                      <Trophy className='mr-1 h-3 w-3 text-violet-500' />
-                      <span className='text-gray-700 dark:text-zinc-300'>
-                        Ranked Queue:{' '}
-                        {isNonNullish(rankedUserRank?.rank)
-                          ? `#${rankedUserRank.rank}`
-                          : 'N/A'}
-                      </span>
-                    </Badge>
-                  )}
-                  {!!vanillaLeaderboard && (
-                    <Badge
-                      variant='outline'
-                      className='border-gray-200 bg-gray-50 dark:border-zinc-700 dark:bg-zinc-800'
-                    >
-                      <Trophy className='mr-1 h-3 w-3 text-violet-500' />
-                      <span className='text-gray-700 dark:text-zinc-300'>
-                        Vanilla Queue:{' '}
-                        {isNonNullish(vanillaUserRank?.rank)
-                          ? `#${vanillaUserRank.rank}`
-                          : 'N/A'}
-                      </span>
-                    </Badge>
-                  )}
-                </div>
-              </div>
-              <div
-                className={cn(
-                  'grid w-full flex-grow grid-cols-2 divide-gray-100 md:w-auto md:grid-cols-3 md:divide-y-0 dark:divide-zinc-800',
-                  isNonNullish(rankedUserRank?.mmr) && 'lg:grid-cols-4',
-                  isNonNullish(vanillaUserRank?.mmr) && 'lg:grid-cols-4',
-                  isNonNullish(rankedUserRank?.mmr) &&
-                    isNonNullish(vanillaUserRank?.mmr) &&
-                    'lg:grid-cols-5'
+              <p className='text-gray-500 text-sm dark:text-zinc-400'>
+                {firstGame ? (
+                  <>First game: {dateFormatter.format(firstGame.gameTime)}</>
+                ) : (
+                  <>No games played yet</>
                 )}
-              >
-                <StatsCard
-                  title='Games'
-                  value={profileData.games}
-                  icon={<BarChart3 className='h-5 w-5 text-violet-500' />}
-                  description='Total matches'
-                />
-                <StatsCard
-                  title='Wins'
-                  value={profileData.wins}
-                  icon={<ArrowUpCircle className='h-5 w-5 text-emerald-500' />}
-                  description={`${profileData.winRate}% win rate`}
-                  accentColor='text-emerald-500'
-                />
-                <StatsCard
-                  title='Losses'
-                  value={profileData.losses}
-                  icon={<ArrowDownCircle className='h-5 w-5 text-rose-500' />}
-                  description={`${profileData.lossRate}% loss rate`}
-                  accentColor='text-rose-500'
-                />
-                {isNonNullish(rankedUserRank?.mmr) && (
-                  <StatsCard
-                    title='Ranked MMR'
-                    value={Math.round(rankedUserRank.mmr)}
-                    description={
-                      lastRankedGame ? (
-                        <span
-                          className={cn(
-                            'flex items-center',
-                            lastRankedGame.mmrChange === 0
-                              ? 'text-zink-800 dark:text-zink-200'
-                              : lastRankedGame.mmrChange > 0
-                                ? 'text-emerald-500'
-                                : 'text-rose-500'
-                          )}
-                        >
-                          {lastRankedGame.mmrChange === 0 ? (
-                            'Tied'
-                          ) : lastRankedGame.mmrChange > 0 ? (
-                            <ChevronUp className='h-3 w-3' />
-                          ) : (
-                            <ChevronDown className='h-3 w-3' />
-                          )}
-                          {lastRankedGame.mmrChange !== 0
-                            ? numberFormatter.format(
-                                Math.trunc(lastRankedGame.mmrChange)
-                              )
-                            : null}{' '}
-                          last match
-                        </span>
-                      ) : null
-                    }
-                    icon={
-                      <ShieldHalf className='h-5 w-5 text-zink-800 dark:text-zink-200' />
-                    }
-                    accentColor='text-zink-800 dark:text-zink-200'
-                  />
+              </p>
+              <div className='mt-2 flex flex-wrap items-center justify-center gap-2 md:justify-start'>
+                {!!rankedLeaderboard && (
+                  <Badge
+                    variant='outline'
+                    className='border-gray-200 bg-gray-50 dark:border-zinc-700 dark:bg-zinc-800'
+                  >
+                    <Trophy className='mr-1 h-3 w-3 text-violet-500' />
+                    <span className='text-gray-700 dark:text-zinc-300'>
+                      Ranked Queue:{' '}
+                      {isNonNullish(rankedUserRank?.rank)
+                        ? `#${rankedUserRank.rank}`
+                        : 'N/A'}
+                    </span>
+                  </Badge>
                 )}
-                {isNonNullish(vanillaUserRank?.mmr) && (
-                  <StatsCard
-                    title='Vanilla MMR'
-                    value={Math.round(vanillaUserRank.mmr)}
-                    icon={
-                      <IceCreamCone className='h-5 w-5 text-zink-800 dark:text-zink-200' />
-                    }
-                    accentColor='text-zink-800 dark:text-zink-200'
-                    description={
-                      lastVanillaGame ? (
-                        <span
-                          className={cn(
-                            'flex items-center',
-                            lastVanillaGame.mmrChange === 0
-                              ? 'text-zink-800 dark:text-zink-200'
-                              : lastVanillaGame.mmrChange > 0
-                                ? 'text-emerald-500'
-                                : 'text-rose-500'
-                          )}
-                        >
-                          {lastVanillaGame.mmrChange === 0 ? (
-                            'Tied'
-                          ) : lastVanillaGame.mmrChange > 0 ? (
-                            <ChevronUp className='h-3 w-3' />
-                          ) : (
-                            <ChevronDown className='h-3 w-3' />
-                          )}
-                          {lastVanillaGame.mmrChange !== 0
-                            ? numberFormatter.format(
-                                Math.trunc(lastVanillaGame.mmrChange)
-                              )
-                            : null}{' '}
-                          last match
-                        </span>
-                      ) : null
-                    }
-                  />
+                {!!vanillaLeaderboard && (
+                  <Badge
+                    variant='outline'
+                    className='border-gray-200 bg-gray-50 dark:border-zinc-700 dark:bg-zinc-800'
+                  >
+                    <Trophy className='mr-1 h-3 w-3 text-violet-500' />
+                    <span className='text-gray-700 dark:text-zinc-300'>
+                      Vanilla Queue:{' '}
+                      {isNonNullish(vanillaUserRank?.rank)
+                        ? `#${vanillaUserRank.rank}`
+                        : 'N/A'}
+                    </span>
+                  </Badge>
                 )}
               </div>
             </div>
-          </CardHeader>
+            <div
+              className={cn(
+                'grid w-full flex-grow grid-cols-2 divide-gray-100 md:w-auto md:grid-cols-3 md:divide-y-0 dark:divide-zinc-800',
+                isNonNullish(rankedUserRank?.mmr) && 'lg:grid-cols-4',
+                isNonNullish(vanillaUserRank?.mmr) && 'lg:grid-cols-4',
+                isNonNullish(rankedUserRank?.mmr) &&
+                  isNonNullish(vanillaUserRank?.mmr) &&
+                  'lg:grid-cols-5'
+              )}
+            >
+              <StatsCard
+                title='Games'
+                value={profileData.games}
+                icon={<BarChart3 className='h-5 w-5 text-violet-500' />}
+                description='Total matches'
+              />
+              <StatsCard
+                title='Wins'
+                value={profileData.wins}
+                icon={<ArrowUpCircle className='h-5 w-5 text-emerald-500' />}
+                description={`${profileData.winRate}% win rate`}
+                accentColor='text-emerald-500'
+              />
+              <StatsCard
+                title='Losses'
+                value={profileData.losses}
+                icon={<ArrowDownCircle className='h-5 w-5 text-rose-500' />}
+                description={`${profileData.lossRate}% loss rate`}
+                accentColor='text-rose-500'
+              />
+              {isNonNullish(rankedUserRank?.mmr) && (
+                <StatsCard
+                  title='Ranked MMR'
+                  value={Math.round(rankedUserRank.mmr)}
+                  description={
+                    lastRankedGame ? (
+                      <span
+                        className={cn(
+                          'flex items-center',
+                          lastRankedGame.mmrChange === 0
+                            ? 'text-zink-800 dark:text-zink-200'
+                            : lastRankedGame.mmrChange > 0
+                              ? 'text-emerald-500'
+                              : 'text-rose-500'
+                        )}
+                      >
+                        {lastRankedGame.mmrChange === 0 ? (
+                          'Tied'
+                        ) : lastRankedGame.mmrChange > 0 ? (
+                          <ChevronUp className='h-3 w-3' />
+                        ) : (
+                          <ChevronDown className='h-3 w-3' />
+                        )}
+                        {lastRankedGame.mmrChange !== 0
+                          ? numberFormatter.format(
+                              Math.trunc(lastRankedGame.mmrChange)
+                            )
+                          : null}{' '}
+                        last match
+                      </span>
+                    ) : null
+                  }
+                  icon={
+                    <ShieldHalf className='h-5 w-5 text-zink-800 dark:text-zink-200' />
+                  }
+                  accentColor='text-zink-800 dark:text-zink-200'
+                />
+              )}
+              {isNonNullish(vanillaUserRank?.mmr) && (
+                <StatsCard
+                  title='Vanilla MMR'
+                  value={Math.round(vanillaUserRank.mmr)}
+                  icon={
+                    <IceCreamCone className='h-5 w-5 text-zink-800 dark:text-zink-200' />
+                  }
+                  accentColor='text-zink-800 dark:text-zink-200'
+                  description={
+                    lastVanillaGame ? (
+                      <span
+                        className={cn(
+                          'flex items-center',
+                          lastVanillaGame.mmrChange === 0
+                            ? 'text-zink-800 dark:text-zink-200'
+                            : lastVanillaGame.mmrChange > 0
+                              ? 'text-emerald-500'
+                              : 'text-rose-500'
+                        )}
+                      >
+                        {lastVanillaGame.mmrChange === 0 ? (
+                          'Tied'
+                        ) : lastVanillaGame.mmrChange > 0 ? (
+                          <ChevronUp className='h-3 w-3' />
+                        ) : (
+                          <ChevronDown className='h-3 w-3' />
+                        )}
+                        {lastVanillaGame.mmrChange !== 0
+                          ? numberFormatter.format(
+                              Math.trunc(lastVanillaGame.mmrChange)
+                            )
+                          : null}{' '}
+                        last match
+                      </span>
+                    ) : null
+                  }
+                />
+              )}
+            </div>
+          </div>
+        </div>
 
-          <CardContent className='p-0'>
-            <Tabs defaultValue='matches' className='p-6'>
-              <div className='mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center'>
-                <TabsList className='bg-gray-100 dark:bg-zinc-800'>
-                  <TabsTrigger value='matches'>Match History</TabsTrigger>
-                  <TabsTrigger value='stats'>Statistics</TabsTrigger>
-                  <TabsTrigger value='achievements'>Achievements</TabsTrigger>
-                </TabsList>
+        <Tabs defaultValue='matches' className='p-6'>
+          <div className='mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center'>
+            <TabsList className='bg-gray-100 dark:bg-zinc-800'>
+              <TabsTrigger value='matches'>Match History</TabsTrigger>
+              <TabsTrigger value='stats'>Statistics</TabsTrigger>
+              <TabsTrigger value='achievements'>Achievements</TabsTrigger>
+            </TabsList>
 
-                <div className='flex items-center gap-2'>
-                  <div className='mr-2 flex items-center gap-2'>
-                    <Trophy className='h-4 w-4 text-gray-400 dark:text-zinc-400' />
-                    <Select
-                      value={leaderboardFilter}
-                      onValueChange={setLeaderboardFilter}
-                    >
-                      <SelectTrigger className='h-9 w-[150px]'>
-                        <SelectValue placeholder='Leaderboard' />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value='all'>All Leaderboards</SelectItem>
-                        <SelectItem value='ranked'>Ranked</SelectItem>
-                        <SelectItem value='vanilla'>Vanilla</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <Filter className='h-4 w-4 text-gray-400 dark:text-zinc-400' />
-                  <Select value={filter} onValueChange={setFilter}>
-                    <SelectTrigger className='h-9 w-[120px]'>
-                      <SelectValue placeholder='Filter' />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value='all'>All Games</SelectItem>
-                      <SelectItem value='wins'>Wins</SelectItem>
-                      <SelectItem value='losses'>Losses</SelectItem>
-                      <SelectItem value='ties'>Ties</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+            <div className='flex items-center gap-2'>
+              <div className='mr-2 flex items-center gap-2'>
+                <Trophy className='h-4 w-4 text-gray-400 dark:text-zinc-400' />
+                <Select
+                  value={leaderboardFilter}
+                  onValueChange={setLeaderboardFilter}
+                >
+                  <SelectTrigger className='h-9 w-[150px]'>
+                    <SelectValue placeholder='Leaderboard' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='all'>All Leaderboards</SelectItem>
+                    <SelectItem value='ranked'>Ranked</SelectItem>
+                    <SelectItem value='vanilla'>Vanilla</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
-              <TabsContent value='matches' className='m-0'>
-                <div className='overflow-hidden rounded-lg border'>
-                  <div className='overflow-x-auto'>
-                    <GamesTable games={filteredGames} />
+              <Filter className='h-4 w-4 text-gray-400 dark:text-zinc-400' />
+              <Select value={filter} onValueChange={setFilter}>
+                <SelectTrigger className='h-9 w-[120px]'>
+                  <SelectValue placeholder='Filter' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='all'>All Games</SelectItem>
+                  <SelectItem value='wins'>Wins</SelectItem>
+                  <SelectItem value='losses'>Losses</SelectItem>
+                  <SelectItem value='ties'>Ties</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <TabsContent value='matches' className='m-0'>
+            <div className='overflow-hidden rounded-lg border'>
+              <div className='overflow-x-auto'>
+                <GamesTable games={filteredGames} />
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value='stats' className='m-0'>
+            <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+              {(rankedLeaderboard || lastRankedGame) && (
+                <LeaderboardStatsCard
+                  title='Ranked Queue Stats'
+                  rank={rankedUserRank?.rank}
+                  mmr={
+                    lastRankedGame
+                      ? Math.trunc(
+                          lastRankedGame.playerMmr + lastRankedGame.mmrChange
+                        )
+                      : undefined
+                  }
+                  icon={<Trophy className='h-5 w-5 text-violet-500' />}
+                  accentColor='text-violet-500'
+                />
+              )}
+
+              {(vanillaLeaderboard || lastVanillaGame) && (
+                <LeaderboardStatsCard
+                  title='Vanilla Queue Stats'
+                  rank={vanillaUserRank?.rank}
+                  mmr={
+                    lastVanillaGame
+                      ? Math.trunc(
+                          lastVanillaGame.playerMmr + lastVanillaGame.mmrChange
+                        )
+                      : undefined
+                  }
+                  icon={<Star className='h-5 w-5 text-amber-500' />}
+                  accentColor='text-amber-500'
+                />
+              )}
+
+              {!rankedLeaderboard &&
+                !vanillaLeaderboard &&
+                !lastRankedGame &&
+                !lastVanillaGame && (
+                  <div className='col-span-2 flex h-40 items-center justify-center rounded-lg border bg-gray-50 dark:bg-zinc-800/50'>
+                    <p className='text-gray-500 dark:text-zinc-400'>
+                      No leaderboard data available
+                    </p>
                   </div>
-                </div>
-              </TabsContent>
+                )}
+            </div>
+          </TabsContent>
 
-              <TabsContent value='stats' className='m-0'>
-                <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-                  {(rankedLeaderboard || lastRankedGame) && (
-                    <LeaderboardStatsCard
-                      title='Ranked Queue Stats'
-                      rank={rankedUserRank?.rank}
-                      mmr={
-                        lastRankedGame
-                          ? Math.trunc(
-                              lastRankedGame.playerMmr +
-                                lastRankedGame.mmrChange
-                            )
-                          : undefined
-                      }
-                      icon={<Trophy className='h-5 w-5 text-violet-500' />}
-                      accentColor='text-violet-500'
-                    />
-                  )}
-
-                  {(vanillaLeaderboard || lastVanillaGame) && (
-                    <LeaderboardStatsCard
-                      title='Vanilla Queue Stats'
-                      rank={vanillaUserRank?.rank}
-                      mmr={
-                        lastVanillaGame
-                          ? Math.trunc(
-                              lastVanillaGame.playerMmr +
-                                lastVanillaGame.mmrChange
-                            )
-                          : undefined
-                      }
-                      icon={<Star className='h-5 w-5 text-amber-500' />}
-                      accentColor='text-amber-500'
-                    />
-                  )}
-
-                  {!rankedLeaderboard &&
-                    !vanillaLeaderboard &&
-                    !lastRankedGame &&
-                    !lastVanillaGame && (
-                      <div className='col-span-2 flex h-40 items-center justify-center rounded-lg border bg-gray-50 dark:bg-zinc-800/50'>
-                        <p className='text-gray-500 dark:text-zinc-400'>
-                          No leaderboard data available
-                        </p>
-                      </div>
-                    )}
-                </div>
-              </TabsContent>
-
-              <TabsContent value='achievements' className='m-0'>
-                <div className='flex h-40 items-center justify-center rounded-lg border bg-gray-50 dark:bg-zinc-800/50'>
-                  <p className='text-gray-500 dark:text-zinc-400'>
-                    Achievements coming soon
-                  </p>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+          <TabsContent value='achievements' className='m-0'>
+            <div className='flex h-40 items-center justify-center rounded-lg border bg-gray-50 dark:bg-zinc-800/50'>
+              <p className='text-gray-500 dark:text-zinc-400'>
+                Achievements coming soon
+              </p>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   )
