@@ -33,7 +33,6 @@ import {
   Filter,
   IceCreamCone,
   InfoIcon,
-  MinusCircle,
   ShieldHalf,
   Star,
   Trophy,

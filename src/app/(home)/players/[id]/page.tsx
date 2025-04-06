@@ -1,8 +1,8 @@
-import { UserInfo } from '@/app/players/[id]/user'
 import { auth } from '@/server/auth'
 import { RANKED_CHANNEL, VANILLA_CHANNEL } from '@/shared/constants'
 import { HydrateClient, api } from '@/trpc/server'
 import { Suspense } from 'react'
+import { UserInfo } from './user'
 
 export default async function PlayerPage({
   params,
