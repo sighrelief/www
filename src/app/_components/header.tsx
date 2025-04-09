@@ -72,10 +72,9 @@ export function Header({
         <Menu className='lg:hidden'>
           <MenuTrigger
             aria-label='Toggle Menu'
-            className='group -me-2'
             enableHover={nav.enableHoverToOpen}
           >
-            <ChevronDown className='size-3 transition-transform duration-300 group-data-[state=open]:rotate-180' />
+            {/*<ChevronDown className='size-3 transition-transform duration-300 group-data-[state=open]:rotate-180' />*/}
           </MenuTrigger>
           <MenuContent className='sm:flex-row sm:items-center sm:justify-end'>
             {menuItems
