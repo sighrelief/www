@@ -18,11 +18,11 @@ const links = [
     url: '/about',
     icon: <Info />,
   },
-  {
-    text: 'Credits',
-    url: '/credits',
-    icon: <Award />,
-  },
+  // {
+  //   text: 'Credits',
+  //   url: '/credits',
+  //   icon: <Award />,
+  // },
 ]
 const nav = {
   title: (

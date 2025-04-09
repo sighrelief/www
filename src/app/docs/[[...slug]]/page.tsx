@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button'
+import { ImageZoom } from 'fumadocs-ui/components/image-zoom'
 import defaultMdxComponents from 'fumadocs-ui/mdx'
 import {
   DocsBody,
@@ -23,7 +25,13 @@ export default async function Page(props: {
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
-        <MDX components={{ ...defaultMdxComponents }} />
+        <MDX
+          components={{
+            ...defaultMdxComponents,
+            img: (props) => <ImageZoom {...(props as any)} />,
+            Button: (props) => <Button {...(props as any)} />,
+          }}
+        />
       </DocsBody>
     </DocsPage>
   )

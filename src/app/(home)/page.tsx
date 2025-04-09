@@ -24,7 +24,7 @@ export default function Home() {
         <section className='space-y-6 pt-6 pb-8 md:pt-10 md:pb-12 lg:py-32'>
           <div className='container mx-auto flex flex-col items-center gap-4 text-center'>
             <Link
-              href='https://github.com'
+              href='https://github.com/Balatro-Multiplayer'
               className='rounded-2xl bg-muted px-4 py-1.5 font-medium text-sm'
               target='_blank'
             >
@@ -44,7 +44,7 @@ export default function Home() {
                 size='lg'
                 className='w-full bg-red-600 text-white hover:bg-red-700 sm:w-auto'
               >
-                <Link href='/docs/installation'>
+                <Link href='/docs/getting-started/installation'>
                   Get Started
                   <ChevronRight className='ml-2 h-4 w-4' />
                 </Link>
@@ -71,8 +71,7 @@ export default function Home() {
               Features
             </h2>
             <p className='max-w-[85%] text-muted-foreground leading-normal sm:text-lg sm:leading-7'>
-              Everything you need to enjoy Balatro with friends and the wider
-              community.
+              Play with friends, compete globally, join tournaments
             </p>
           </div>
           <div className='mx-auto grid justify-center gap-4 sm:grid-cols-2 md:max-w-[64rem] md:grid-cols-3'>
@@ -81,10 +80,7 @@ export default function Home() {
                 <CardTitle>Real-time Matches</CardTitle>
               </CardHeader>
               <CardContent>
-                <p>
-                  Challenge friends to head-to-head poker matches with
-                  synchronized gameplay.
-                </p>
+                <p>Challenge friends to head-to-head Balatro matches.</p>
               </CardContent>
             </Card>
             <Card>
@@ -93,7 +89,7 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <p>
-                  Create and join tournaments with custom rules and brackets.
+                  Join our weekly tournaments and compete against other players.
                 </p>
               </CardContent>
             </Card>
@@ -110,12 +106,12 @@ export default function Home() {
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle>Spectator Mode</CardTitle>
+                <CardTitle>Active Community</CardTitle>
               </CardHeader>
               <CardContent>
                 <p>
-                  Watch live matches between top players and learn new
-                  strategies.
+                  Join our Discord server to find matches, share strategies, and
+                  participate in community events.
                 </p>
               </CardContent>
             </Card>
@@ -164,8 +160,7 @@ export default function Home() {
               </CardHeader>
               <CardContent className='flex-grow'>
                 <p className='mb-4 text-muted-foreground'>
-                  Create a lobby and share the code with friends for casual
-                  matches.
+                  Challenge friends in private matches
                 </p>
                 <ul className='space-y-2 text-sm'>
                   <li className='flex items-start gap-2'>
@@ -190,11 +185,11 @@ export default function Home() {
                   </li>
                 </ul>
               </CardContent>
-              <div className='mt-auto p-6 pt-0'>
-                <Button variant='outline' className='w-full' asChild>
-                  <Link href='/docs/direct-play'>Learn More</Link>
-                </Button>
-              </div>
+              {/*<div className='mt-auto p-6 pt-0'>*/}
+              {/*  <Button variant='outline' className='w-full' asChild>*/}
+              {/*    <Link href='/docs/direct-play'>Learn More</Link>*/}
+              {/*  </Button>*/}
+              {/*</div>*/}
             </Card>
 
             <Card className='flex h-full flex-col'>
@@ -206,8 +201,7 @@ export default function Home() {
               </CardHeader>
               <CardContent className='flex-grow'>
                 <p className='mb-4 text-muted-foreground'>
-                  Join ranked queues with MMR-based matchmaking and
-                  leaderboards.
+                  Compete in two distinct queues:
                 </p>
                 <div className='space-y-4'>
                   <div className='space-y-2 text-sm'>
@@ -228,11 +222,11 @@ export default function Home() {
                   </div>
                 </div>
               </CardContent>
-              <div className='mt-auto p-6 pt-0'>
-                <Button variant='outline' className='w-full' asChild>
-                  <Link href='/docs/matchmaking'>Learn More</Link>
-                </Button>
-              </div>
+              {/*<div className='mt-auto p-6 pt-0'>*/}
+              {/*  <Button variant='outline' className='w-full' asChild>*/}
+              {/*    <Link href='/docs/matchmaking'>Learn More</Link>*/}
+              {/*  </Button>*/}
+              {/*</div>*/}
             </Card>
 
             <Card className='flex h-full flex-col'>
@@ -244,8 +238,7 @@ export default function Home() {
               </CardHeader>
               <CardContent className='flex-grow'>
                 <p className='mb-4 text-muted-foreground'>
-                  Find players for games with custom rulesets via our Discord
-                  community.
+                  Organize custom matches with unique rules and mods
                 </p>
                 <ul className='space-y-2 text-sm'>
                   <li className='flex items-start gap-2'>
@@ -270,8 +263,8 @@ export default function Home() {
               </CardContent>
               <div className='mt-auto p-6 pt-0'>
                 <Button variant='outline' className='w-full' asChild>
-                  <Link href='https://discord.gg/balatro' target='_blank'>
-                    Join Discord
+                  <Link href='https://discord.gg/E4ZFwWbtT5' target='_blank'>
+                    Join Our Discord
                   </Link>
                 </Button>
               </div>
@@ -313,8 +306,8 @@ export default function Home() {
                     <div className='space-y-1'>
                       <h3 className='font-bold text-xl'>Install the Mod</h3>
                       <p className='text-muted-foreground'>
-                        Download and install the multiplayer mod using our
-                        simple installer.
+                        Download and install the multiplayer mod by following
+                        the instructions on our documentation.
                       </p>
                     </div>
                   </li>
@@ -323,9 +316,7 @@ export default function Home() {
                       2
                     </div>
                     <div className='space-y-1'>
-                      <h3 className='font-bold text-xl'>
-                        Create or Join a Game
-                      </h3>
+                      <h3 className='font-bold text-xl'>Start a match</h3>
                       <p className='text-muted-foreground'>
                         Host your own game or join an existing one with a simple
                         game code.
@@ -351,7 +342,9 @@ export default function Home() {
                     className='w-full bg-red-600 text-white hover:bg-red-700 sm:w-auto'
                     asChild
                   >
-                    <Link href='/docs/installation'>Install Now</Link>
+                    <Link href='/docs/getting-started/installation'>
+                      Install Now
+                    </Link>
                   </Button>
                 </div>
               </div>
@@ -373,15 +366,16 @@ export default function Home() {
               Ready to Play?
             </h2>
             <p className='max-w-[600px] text-muted-foreground md:text-xl/relaxed'>
-              Join thousands of Balatro players already enjoying multiplayer
-              matches.
+              Join our competitive community of 3,000+ ranked players.
             </p>
             <Button
               size='lg'
               className='mt-4 w-full bg-red-600 text-white hover:bg-red-700 sm:w-auto'
               asChild
             >
-              <Link href='/docs/installation'>Get Started Now</Link>
+              <Link href='/docs/getting-started/installation'>
+                Get Started Now
+              </Link>
             </Button>
           </div>
         </section>
@@ -405,12 +399,12 @@ export default function Home() {
             >
               About
             </Link>
-            <Link
-              href='/credits'
-              className='text-muted-foreground text-sm underline-offset-4 hover:underline'
-            >
-              Credits
-            </Link>
+            {/*<Link*/}
+            {/*  href='/credits'*/}
+            {/*  className='text-muted-foreground text-sm underline-offset-4 hover:underline'*/}
+            {/*>*/}
+            {/*  Credits*/}
+            {/*</Link>*/}
             <GithubLinks>
               <DropdownMenuTrigger asChild>
                 <Button variant='ghost' size='icon'>
