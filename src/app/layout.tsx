@@ -11,6 +11,7 @@ import { Geist } from 'next/font/google'
 export const metadata: Metadata = {
   title: 'Balatro Multiplayer',
   description: 'The official Balatro Multiplayer Mod website',
+  metadataBase: new URL('https://balatromp.com'),
   icons: [{ rel: 'icon', url: '/favicon.ico' }],
 }
 
