@@ -13,9 +13,14 @@ import {
 } from 'react'
 
 import { Badge } from '@/components/ui/badge'
-import { CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/mobile-tooltip'
 import { Slider } from '@/components/ui/slider'
 import {
   Table,
@@ -44,11 +49,70 @@ import {
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-const getMedal = (rank: number) => {
-  if (rank === 1) return <Medal className='h-5 w-5 text-yellow-500' />
-  if (rank === 2) return <Medal className='h-5 w-5 text-slate-400' />
-  if (rank === 3) return <Medal className='h-5 w-5 text-amber-700' />
-  return null
+const RANK_IMAGES = {
+  foil: '/ranks/foil.png',
+  glass: '/ranks/glass2.png',
+  gold: '/ranks/gold.png',
+  holographic: '/ranks/holo.png',
+  lucky: '/ranks/lucky.png',
+  negative: '/ranks/negative.png',
+  polychrome: '/ranks/poly.png',
+  steel: '/ranks/steel.png',
+  stone: '/ranks/stone.png',
+}
+
+const EDITION_THRESHOLD = {
+  FOIL: 50,
+  HOLOGRAPHIC: 10,
+  POLYCHROME: 3,
+  NEGATIVE: 1,
+}
+
+const ENHANCEMENT_THRESHOLD = {
+  STEEL: 320,
+  GOLD: 420,
+  LUCKY: 560,
+  GLASS: 880,
+}
+
+const getMedal = (rank: number, mmr: number) => {
+  let enhancement = RANK_IMAGES.stone
+  let tooltip = 'Stone'
+  if (mmr >= ENHANCEMENT_THRESHOLD.STEEL) {
+    enhancement = RANK_IMAGES.steel
+    tooltip = 'Steel'
+  }
+  if (mmr >= ENHANCEMENT_THRESHOLD.GOLD) {
+    enhancement = RANK_IMAGES.gold
+    tooltip = 'Gold'
+  }
+  if (mmr >= ENHANCEMENT_THRESHOLD.LUCKY) {
+    enhancement = RANK_IMAGES.lucky
+    tooltip = 'Lucky'
+  }
+  if (mmr >= ENHANCEMENT_THRESHOLD.GLASS) {
+    enhancement = RANK_IMAGES.glass
+    tooltip = 'Glass'
+  }
+
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span className='flex shrink-0 items-center justify-center gap-1.5'>
+            <img
+              src={enhancement}
+              alt={`Rank ${rank}`}
+              className='h-5 text-white'
+            />
+          </span>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{tooltip}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  )
 }
 
 export function LeaderboardPage() {
@@ -238,7 +302,7 @@ interface LeaderboardTableProps {
   sortColumn: string
   sortDirection: 'asc' | 'desc'
   onSort: (column: string) => void
-  getMedal: (rank: number) => React.ReactNode
+  getMedal: (rank: number, mmr: number) => React.ReactNode
 }
 
 function RawLeaderboardTable({
@@ -398,10 +462,12 @@ function RawLeaderboardTable({
                         'transition-colors hover:bg-gray-50 dark:hover:bg-zinc-800/70'
                       )}
                     >
-                      <TableCell className='w-24 font-medium'>
+                      <TableCell className='w-28 font-medium'>
                         <div className='flex items-center justify-end gap-1.5 pr-4.5 font-mono'>
-                          {getMedal(entry.rank)}
-                          <span>{entry.rank}</span>
+                          <span className={cn(entry.rank < 10 && 'ml-[1ch]')}>
+                            {entry.rank}
+                          </span>
+                          {getMedal(entry.rank, entry.mmr)}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -414,8 +480,7 @@ function RawLeaderboardTable({
                           </span>
                           {entry.streak >= 3 && (
                             <Badge className='bg-orange-500 text-white hover:no-underline'>
-                              Can't stop winning
-                              <Flame className='mr-1 h-3 w-3' />
+                              <Flame className='h-3 w-3' />
                             </Badge>
                           )}
                         </Link>
