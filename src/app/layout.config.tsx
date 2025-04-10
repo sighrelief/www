@@ -1,5 +1,5 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared'
-import { Award, BookOpen, Info, Trophy } from 'lucide-react'
+import { BookOpen, CircleDollarSign, Info, Trophy } from 'lucide-react'
 import { Header } from './_components/header'
 
 const links = [
@@ -17,6 +17,11 @@ const links = [
     text: 'About',
     url: '/about',
     icon: <Info />,
+  },
+  {
+    text: 'Support Mod Development',
+    url: 'https://ko-fi.com/virtualized/shop',
+    icon: <CircleDollarSign />,
   },
   // {
   //   text: 'Credits',
