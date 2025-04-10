@@ -69,13 +69,16 @@ const EDITION_THRESHOLD = {
 }
 
 const ENHANCEMENT_THRESHOLD = {
-  STEEL: 320,
-  GOLD: 420,
-  LUCKY: 560,
-  GLASS: 880,
+  STEEL: 250,
+  GOLD: 320,
+  LUCKY: 360,
+  GLASS: 620,
 }
 
-const getMedal = (rank: number, mmr: number) => {
+const getMedal = (rank: number, mmr: number, isVanilla?: boolean) => {
+  if (isVanilla) {
+    return null
+  }
   let enhancement = RANK_IMAGES.stone
   let tooltip = 'Stone'
   if (mmr >= ENHANCEMENT_THRESHOLD.STEEL) {
@@ -284,6 +287,7 @@ export function LeaderboardPage() {
             <div className='m-0 flex flex-1 flex-col'>
               <LeaderboardTable
                 leaderboard={leaderboardFilteredByGameAmounts}
+                isVanilla={leaderboardType !== 'ranked'}
                 sortColumn={sortColumn}
                 sortDirection={sortDirection}
                 onSort={handleSort}
@@ -300,13 +304,15 @@ export function LeaderboardPage() {
 interface LeaderboardTableProps {
   leaderboard: any[]
   sortColumn: string
+  isVanilla?: boolean
   sortDirection: 'asc' | 'desc'
   onSort: (column: string) => void
-  getMedal: (rank: number, mmr: number) => React.ReactNode
+  getMedal: (rank: number, mmr: number, isVanilla?: boolean) => React.ReactNode
 }
 
 function RawLeaderboardTable({
   leaderboard,
+  isVanilla,
   sortColumn,
   sortDirection,
   onSort,
@@ -467,7 +473,7 @@ function RawLeaderboardTable({
                           <span className={cn(entry.rank < 10 && 'ml-[1ch]')}>
                             {entry.rank}
                           </span>
-                          {getMedal(entry.rank, entry.mmr)}
+                          {getMedal(entry.rank, entry.mmr, isVanilla)}
                         </div>
                       </TableCell>
                       <TableCell>
