@@ -1,5 +1,5 @@
 {
   "title": "Getting Started",
-  "pages": ["installation", "multiplayer-balance-changes", "faq"],
+  "pages": ["installation", "faq"],
   "defaultOpen": true
 }

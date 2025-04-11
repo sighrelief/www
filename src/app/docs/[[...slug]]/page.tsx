@@ -1,4 +1,13 @@
+import { Chance } from '@/app/_components/chance'
+import { Chips } from '@/app/_components/chips'
+import { Hands } from '@/app/_components/hands'
+import { JokerCard } from '@/app/_components/joker-card'
+import { Money } from '@/app/_components/money'
+import { Mult } from '@/app/_components/mult'
+import { Spectral } from '@/app/_components/spectral'
+import { Xmult } from '@/app/_components/xmult'
 import { Button } from '@/components/ui/button'
+import { CDN_URL } from '@/shared/constants'
 import { ImageZoom } from 'fumadocs-ui/components/image-zoom'
 import defaultMdxComponents from 'fumadocs-ui/mdx'
 import {
@@ -21,15 +30,47 @@ export default async function Page(props: {
   const MDX = page.data.body
 
   return (
-    <DocsPage toc={page.data.toc} full={page.data.full}>
+    <DocsPage
+      toc={page.data.toc}
+      tableOfContent={{
+        style: 'clerk',
+      }}
+      full={page.data.full}
+    >
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
         <MDX
           components={{
             ...defaultMdxComponents,
-            img: (props) => <ImageZoom {...(props as any)} />,
+            img: (props) => {
+              const isDev =
+                process.env.NODE_ENV === 'development' ||
+                process.env.IS_PREVIEW === 'true'
+              if (isDev) {
+                return <ImageZoom {...props} />
+              }
+
+              return (
+                <ImageZoom
+                  {...(props as any)}
+                  src={
+                    props.src.startsWith('/')
+                      ? `${CDN_URL}${props.src}`
+                      : props.src
+                  }
+                />
+              )
+            },
             Button: (props) => <Button {...(props as any)} />,
+            JokerCard: (props) => <JokerCard {...(props as any)} />,
+            Chips: (props) => <Chips {...(props as any)} />,
+            Hands: (props) => <Hands {...(props as any)} />,
+            Chance: (props) => <Chance {...(props as any)} />,
+            Money: (props) => <Money {...(props as any)} />,
+            Xmult: (props) => <Xmult {...(props as any)} />,
+            Spectral: (props) => <Spectral {...(props as any)} />,
+            Mult: (props) => <Mult {...(props as any)} />,
           }}
         />
       </DocsBody>
