@@ -42,17 +42,17 @@ export default async function RootLayout({
         />
       </head>
       <body className={'flex min-h-screen flex-col'}>
-        <Banner id={'v0.2.4'} variant={'rainbow'}>
-          Version 0.2.4 is out!
-          <a
-            className={'ml-[1ch] underline'}
-            href={
-              'https://discord.com/channels/1226193436521267223/1228517235744833566/1360058191777501366'
-            }
-          >
-            Learn more in our Discord server.
-          </a>
-        </Banner>
+        {/*<Banner id={'v0.2.4'} variant={'rainbow'}>*/}
+        {/*  Version 0.2.4 is out!*/}
+        {/*  <a*/}
+        {/*    className={'ml-[1ch] underline'}*/}
+        {/*    href={*/}
+        {/*      'https://discord.com/channels/1226193436521267223/1228517235744833566/1360058191777501366'*/}
+        {/*    }*/}
+        {/*  >*/}
+        {/*    Learn more in our Discord server.*/}
+        {/*  </a>*/}
+        {/*</Banner>*/}
         <TRPCReactProvider>
           <NextIntlClientProvider>
             <SessionProvider>
