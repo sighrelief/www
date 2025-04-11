@@ -256,7 +256,24 @@ These jokers are modified versions of the original jokers.
 			<td>
 				Removes <Hands>one level</Hands> from your Nemesis' highest level <Hands>poker hand</Hands>.
 			</td>
-			<td></td>
+			<td>
+				If your Nemesis has multiple poker hands with the same highest level, the level is removed following
+				this order of priority:
+				- Flush house
+				- Full house
+				- Flush
+				- Pair
+				- High card
+				- Straight flush
+				- Straight
+				- Two pair
+				- Flush five
+				- Five of a kind
+				- Three of a kind
+				- Four of a kind
+
+				The lowest possible level is <Hands>0</Hands>.
+			</td>
 		</tr>
 		</tbody>
 	</table>
