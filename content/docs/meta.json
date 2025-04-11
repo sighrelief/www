@@ -1,5 +1,10 @@
 {
-  "title": "Advanced",
-  "pages": ["index", "getting-started", "advanced"],
+  "pages": [
+    "index",
+    "getting-started",
+    "rulesets",
+    "ranked-matchmaking",
+    "advanced"
+  ],
   "defaultOpen": true
 }
