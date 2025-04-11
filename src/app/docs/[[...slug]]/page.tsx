@@ -7,6 +7,7 @@ import { Mult } from '@/app/_components/mult'
 import { Spectral } from '@/app/_components/spectral'
 import { Xmult } from '@/app/_components/xmult'
 import { Button } from '@/components/ui/button'
+import { CDN_URL } from '@/shared/constants'
 import { ImageZoom } from 'fumadocs-ui/components/image-zoom'
 import defaultMdxComponents from 'fumadocs-ui/mdx'
 import {
@@ -42,7 +43,25 @@ export default async function Page(props: {
         <MDX
           components={{
             ...defaultMdxComponents,
-            img: (props) => <ImageZoom {...(props as any)} />,
+            img: (props) => {
+              const isDev =
+                process.env.NODE_ENV === 'development' ||
+                process.env.IS_PREVIEW === 'true'
+              if (isDev) {
+                return <ImageZoom {...props} />
+              }
+
+              return (
+                <ImageZoom
+                  {...(props as any)}
+                  src={
+                    props.src.startsWith('/')
+                      ? `${CDN_URL}${props.src}`
+                      : props.src
+                  }
+                />
+              )
+            },
             Button: (props) => <Button {...(props as any)} />,
             JokerCard: (props) => <JokerCard {...(props as any)} />,
             Chips: (props) => <Chips {...(props as any)} />,
