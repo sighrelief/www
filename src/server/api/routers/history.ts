@@ -46,10 +46,17 @@ export async function syncHistory() {
   const firstGame = Object.keys(matches).sort(
     (a, b) => Number.parseInt(a) - Number.parseInt(b)
   )[0]
+
   if (!firstGame) {
     throw new Error('No first game found')
   }
-
+  if (firstGame === 'detail') {
+    await db.insert(metadata).values({
+      key: 'history_cursor_failure',
+      value: JSON.stringify(matches),
+    })
+    throw new Error('Something went wrong')
+  }
   await db
     .insert(metadata)
     .values({
