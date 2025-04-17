@@ -26,6 +26,7 @@ import {
   ArrowUpCircle,
   MinusCircle,
 } from 'lucide-react'
+import { useSession } from 'next-auth/react'
 import { useFormatter } from 'next-intl'
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
@@ -35,9 +36,32 @@ const numberFormatter = new Intl.NumberFormat('en-US', {
 })
 
 const columnHelper = createColumnHelper<SelectGames>()
-
+function getTranscript(gameNumber: number) {
+  return fetch(
+    `https://api.neatqueue.com/api/transcript/1226193436521267223/${gameNumber}`
+  ).then((res) => res.json())
+}
+function openTranscript(gameNumber: number): void {
+  getTranscript(gameNumber)
+    .then((html: string) => {
+      const newWindow = window.open('', '_blank')
+      if (newWindow) {
+        newWindow.document.write(html)
+        newWindow.document.close()
+      } else {
+        console.error(
+          'Failed to open new window - popup blocker may be enabled'
+        )
+      }
+    })
+    .catch((err) => {
+      console.error('Failed to load transcript:', err)
+    })
+}
 const useColumns = () => {
   const format = useFormatter()
+  const session = useSession()
+  const isAdmin = session.data?.user.role === 'admin'
   return useMemo(
     () => [
       columnHelper.accessor('opponentName', {
@@ -151,8 +175,27 @@ const useColumns = () => {
         ),
         id: 'time',
       }),
+      ...(isAdmin
+        ? [
+            columnHelper.accessor('gameNum', {
+              header: 'Transcript',
+              meta: { className: 'pr-0' },
+              cell: (info) => (
+                <Button
+                  size={'sm'}
+                  onClick={() => openTranscript(info.getValue())}
+                  type={'button'}
+                  variant={'ghost'}
+                >
+                  Transcript
+                </Button>
+              ),
+              id: 'transcript',
+            }),
+          ]
+        : []),
     ],
-    []
+    [isAdmin]
   )
 }
 
