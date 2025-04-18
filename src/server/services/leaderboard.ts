@@ -68,6 +68,7 @@ export class LeaderboardService {
         rank: rank + 1,
         ...userData,
         mmr: Number(userData.mmr),
+        streak: userData.streak,
       }
     } catch (error) {
       console.error('Error getting user rank:', error)
