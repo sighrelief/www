@@ -1,123 +1,32 @@
-'use client'
-
+import { StreamCardClient } from '@/app/stream-card/[id]/_components/stream-card-client'
 import { RANKED_CHANNEL } from '@/shared/constants'
-import { api } from '@/trpc/react'
-import { ArrowDown, ArrowUp } from 'lucide-react'
-import { useParams } from 'next/navigation'
+import { HydrateClient, api } from '@/trpc/server'
+import { Suspense } from 'react'
 
-export default function LeaderboardCard() {
-  const { id } = useParams()
-  if (!id || typeof id !== 'string') {
-    return null
+export default async function StreamCardPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params
+  if (id) {
+    await Promise.all([
+      api.history.user_games.prefetch({
+        user_id: id,
+      }),
+
+      api.leaderboard.get_user_rank.prefetch({
+        channel_id: RANKED_CHANNEL,
+        user_id: id,
+      }),
+    ])
   }
 
-  const gamesQuery = api.history.user_games.useQuery({ user_id: id })
-  const games = gamesQuery?.data || [] // Ensure games is always an array
-
-  const { data: rankedUserRank } = api.leaderboard.get_user_rank.useQuery({
-    channel_id: RANKED_CHANNEL,
-    user_id: id,
-  })
-
-  if (!rankedUserRank || !games?.length) {
-    return null
-  }
-  const filteredGamesByLeaderboard = games.filter(
-    (game) => game.gameType === 'ranked'
-  )
-
-  const games_played = filteredGamesByLeaderboard.length
-  let wins = 0
-  let losses = 0
-  let ties = 0
-  for (const game of filteredGamesByLeaderboard) {
-    if (game.result === 'win') {
-      wins++
-    } else if (game.result === 'loss') {
-      losses++
-    } else if (game.result === 'tie') {
-      ties++
-    } else {
-      ties++
-    }
-  }
-
-  const lastGame = filteredGamesByLeaderboard.at(0)
-
-  const currentName = lastGame?.playerName
-  const meaningful_games = games_played - ties
-  const playerData = {
-    username: currentName,
-    games: games_played,
-    meaningful_games,
-    wins,
-    losses,
-    ties,
-    winRate:
-      meaningful_games > 0 ? Math.ceil((wins / meaningful_games) * 100) : 0,
-    lossRate:
-      meaningful_games > 0 ? Math.floor((losses / meaningful_games) * 100) : 0,
-    rank: rankedUserRank.rank,
-    mmr: Math.round(rankedUserRank.mmr),
-    mmrChange: `${(lastGame?.mmrChange ?? 0) >= 0 ? '+' : '-'}${Math.round(lastGame?.mmrChange ?? 0)}`,
-    streak: rankedUserRank?.streak,
-  }
   return (
-    <div
-      style={{ zoom: '200%' }}
-      className='flex h-10 w-full max-w-[700px] items-center overflow-hidden rounded-md border-2 border-slate-800 bg-slate-900/90 text-white shadow-lg backdrop-blur-sm'
-    >
-      <div className='flex h-full items-center gap-1 border-slate-700 border-r bg-gradient-to-r from-indigo-600 to-purple-600 px-2'>
-        <span className='font-bold text-sm'>{playerData.rank}</span>
-      </div>
-
-      {/* Player Name */}
-      <div className='max-w-[180px] flex-shrink-0 border-slate-700 border-r px-2'>
-        <div className='truncate font-medium'>{playerData.username}</div>
-      </div>
-
-      {/* MMR */}
-      <div className='flex items-center gap-1.5 border-slate-700 border-r px-2'>
-        <div>MMR:</div>
-        <div className='font-bold'>{playerData.mmr}</div>
-        <div className='text-emerald-400 text-sm'>{playerData.mmrChange}</div>
-      </div>
-
-      {/* Win Rate */}
-      <div className='flex items-center gap-1.5 border-slate-700 border-r px-2'>
-        <div>Win Rate:</div>
-        <div className='text font-bold text-emerald-400'>
-          {playerData.winRate}%
-        </div>
-      </div>
-
-      {/* Win/Loss */}
-      <div className='flex items-center gap-2 border-slate-700 border-r px-2'>
-        <div className='flex items-center'>
-          <ArrowUp className='h-3 w-3 text-emerald-400' />
-          <div className='ml-0.5 font-bold text-emerald-400'>
-            {playerData.wins}
-          </div>
-        </div>
-        <div className='flex items-center'>
-          <ArrowDown className='h-3 w-3 text-rose-400' />
-          <div className='ml-0.5 font-bold text-rose-400'>
-            {playerData.losses}
-          </div>
-        </div>
-      </div>
-
-      {/* Streak */}
-      <div className='flex items-center gap-1.5 border-slate-700 border-r px-2'>
-        <div>Streak:</div>
-        <div className='font-bold text-emerald-400'>{playerData.streak}</div>
-      </div>
-
-      {/* Live Indicator */}
-      <div className='ml-auto flex items-center gap-1 px-2'>
-        <div className='h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500' />
-        <span className='text-slate-400 text-sm'>Live</span>
-      </div>
-    </div>
+    <Suspense>
+      <HydrateClient>
+        <StreamCardClient />
+      </HydrateClient>
+    </Suspense>
   )
 }
