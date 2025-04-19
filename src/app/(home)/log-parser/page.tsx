@@ -9,6 +9,14 @@ import {
   DropzoneUploadIcon,
   DropzoneZone,
 } from '@/components/ui/dropzone'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import { useState } from 'react'
 
 type LogLine = {
@@ -30,6 +38,9 @@ type Game = {
   startDate: Date
   endDate: Date | null
   lastLives: number
+  opponentMoneySpent: number
+  moneySpentPerShop: (number | null)[]
+  moneySpentPerShopOpponent: (number | null)[]
 }
 
 type GameState = {
@@ -48,9 +59,12 @@ const initGame = (): Game => ({
   isHost: null,
   moneyGained: 0,
   moneySpent: 0,
+  opponentMoneySpent: 0,
   startDate: new Date(),
   endDate: null,
   lastLives: 4,
+  moneySpentPerShop: [],
+  moneySpentPerShopOpponent: [],
 })
 
 const formatDuration = (seconds: number): string => {
@@ -68,7 +82,14 @@ const formatDuration = (seconds: number): string => {
 
 export default function LogParser() {
   const [logLines, setLogLines] = useState<LogLine[]>([])
-
+  const [moneyReports, setMoneyReports] = useState<
+    {
+      totalSpent: number
+      totalSpentOpponent: number
+      spentPerShop: (number | null)[]
+      spentPerShopOpponent: (number | null)[]
+    }[]
+  >([])
   const parseLogFile = async (file: File) => {
     const state: GameState = {
       currentGame: null,
@@ -100,7 +121,27 @@ export default function LogParser() {
           }
           continue
         }
-
+        if (line.includes(' Client got spentLastShop message')) {
+          const match = line.match(/amount: (\d+)/)
+          if (match) {
+            if (!state.currentGame) continue
+            const amount = match[1] ? Number.parseInt(match[1]) : 0
+            state.currentGame.opponentMoneySpent += amount
+            state.currentGame.moneySpentPerShopOpponent.push(amount)
+          }
+        }
+        if (line.includes('Client sent message: action:spentLastShop')) {
+          const match = line.match(/amount:(\d+)/)
+          if (match) {
+            if (!state.currentGame) continue
+            const amount = match[1] ? Number.parseInt(match[1]) : 0
+            state.currentGame.moneySpentPerShop.push(amount)
+          }
+        }
+        if (line.includes('Client sent message: action:skip')) {
+          if (!state.currentGame) continue
+          state.currentGame.moneySpentPerShop.push(null)
+        }
         if (lineLower.includes('lobbyinfo message')) {
           if (line.includes('host:')) {
             const hostMatch = line.match(/host: ([^ )]+)/)
@@ -126,7 +167,6 @@ export default function LogParser() {
           console.log(deckMatch, seedTypeMatch)
 
           lastSeenDeck = deckMatch?.[1] || null
-          console.log({ lastSeenDeck })
           continue
         }
 
@@ -301,7 +341,7 @@ export default function LogParser() {
       const totalSpent = state.games.reduce((sum, g) => sum + g.moneySpent, 0)
 
       lines.unshift(
-        { text: `=== Overall Summary ===`, type: 'system' },
+        { text: '=== Overall Summary ===', type: 'system' },
         { text: `Total Games: ${state.games.length}`, type: 'system' },
         { text: `Total Money Gained: $${totalGained}`, type: 'system' },
         { text: `Total Money Spent: $${totalSpent}`, type: 'system' },
@@ -313,6 +353,14 @@ export default function LogParser() {
         { text: '', type: 'system' }
       )
 
+      setMoneyReports(
+        state.games.map((game) => ({
+          totalSpent: game.moneySpent,
+          totalSpentOpponent: game.opponentMoneySpent,
+          spentPerShop: game.moneySpentPerShop,
+          spentPerShopOpponent: game.moneySpentPerShopOpponent,
+        }))
+      )
       setLogLines(lines)
     } catch (err) {
       console.error('Error parsing log:', err)
@@ -323,7 +371,7 @@ export default function LogParser() {
   return (
     <div
       className={
-        'mx-auto flex w-[calc(100%-1rem)] max-w-fd-container flex-col items-start gap-4 pt-16'
+        'mx-auto flex w-[calc(100%-1rem)] max-w-fd-container flex-col gap-4 pt-16'
       }
     >
       <Dropzone
@@ -350,21 +398,72 @@ export default function LogParser() {
         </DropzoneZone>
       </Dropzone>
 
-      <div className='mt-8'>
-        {logLines.map((line, i) => (
-          <div
-            key={i}
-            className={`py-2 ${
-              line.type === 'event'
-                ? 'text-blue-400'
-                : line.type === 'status'
-                  ? 'text-green-400'
-                  : 'font-mono text-gray-400'
-            }`}
-          >
-            {line.text}
-          </div>
-        ))}
+      <div className='mt-8 flex w-full justify-between'>
+        <div>
+          {logLines.map((line, i) => (
+            <div
+              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+              key={i}
+              className={`py-2 ${
+                line.type === 'event'
+                  ? 'text-blue-400'
+                  : line.type === 'status'
+                    ? 'text-green-400'
+                    : 'font-mono text-gray-400'
+              }`}
+            >
+              {line.text}
+            </div>
+          ))}
+        </div>
+        <div>
+          {moneyReports.map((report, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+            <div key={i}>
+              <div className='font-bold text-lg'>Game {i + 1}</div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className={'text-right font-mono'}>
+                      Shop #
+                    </TableHead>
+                    <TableHead className={'text-right font-mono'}>
+                      Logs owner
+                    </TableHead>
+                    <TableHead className={'text-right font-mono'}>
+                      Opponent
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {report.spentPerShop.map((spent, j) => (
+                    // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                    <TableRow key={j}>
+                      <TableCell className={'text-right font-mono'}>
+                        {j + 1}
+                      </TableCell>
+                      <TableCell className={'text-right font-mono'}>
+                        {spent ?? 'Skipped'}
+                      </TableCell>
+                      <TableCell className={'text-right font-mono'}>
+                        {report.spentPerShopOpponent[j] ?? 'Skipped'}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow>
+                    <TableCell>Total</TableCell>
+                    <TableCell className={'text-right font-mono'}>
+                      {report.totalSpent}
+                    </TableCell>
+                    <TableCell className={'text-right font-mono'}>
+                      {report.totalSpentOpponent}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
