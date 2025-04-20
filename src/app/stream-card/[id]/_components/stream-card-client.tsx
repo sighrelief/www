@@ -106,17 +106,16 @@ export function StreamCardClient() {
       </div>
 
       {/* Win/Loss */}
-      <div className='flex items-center gap-2 border-slate-700 border-r px-2'>
+      <div className='flex items-center gap-0.5 border-slate-700 border-r px-2'>
         <div className='flex items-center'>
-          <ArrowUp className='h-3 w-3 text-emerald-400' />
           <div className='ml-0.5 font-bold text-emerald-400'>
-            {playerData.wins}
+            {playerData.wins}W
           </div>
         </div>
+        |
         <div className='flex items-center'>
-          <ArrowDown className='h-3 w-3 text-rose-400' />
           <div className='ml-0.5 font-bold text-rose-400'>
-            {playerData.losses}
+            {playerData.losses}L
           </div>
         </div>
       </div>
@@ -125,12 +124,6 @@ export function StreamCardClient() {
       <div className='flex items-center gap-1.5 border-slate-700 border-r px-2'>
         <div>Streak:</div>
         <div className='font-bold text-emerald-400'>{playerData.streak}</div>
-      </div>
-
-      {/* Live Indicator */}
-      <div className='ml-auto flex items-center gap-1 px-2'>
-        <div className='h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500' />
-        <span className='text-slate-400 text-sm'>Live</span>
       </div>
     </div>
   )
