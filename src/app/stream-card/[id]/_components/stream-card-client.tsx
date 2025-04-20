@@ -79,7 +79,7 @@ export function StreamCardClient() {
   return (
     <div
       style={{ zoom: '200%' }}
-      className='flex h-10 w-full max-w-[550px] items-center overflow-hidden rounded-md border-2 border-slate-800 bg-slate-900/90 text-white shadow-lg backdrop-blur-sm'
+      className='flex h-10 w-fit max-w-[800px] items-center overflow-hidden rounded-md border-2 border-slate-800 bg-slate-900/90 text-white shadow-lg backdrop-blur-sm'
     >
       <div className='flex h-full items-center gap-1 border-slate-700 border-r bg-gradient-to-r from-indigo-600 to-purple-600 px-2'>
         <span className='font-bold text-sm'>{playerData.rank}</span>
@@ -98,8 +98,8 @@ export function StreamCardClient() {
       </div>
 
       {/* Win Rate */}
-      <div className='flex items-center gap-1.5 border-slate-700 border-r px-2'>
-        <div>Win Rate:</div>
+      <div className='flex items-center gap-1.5 text-nowrap border-slate-700 border-r px-2'>
+        <div className={'text-nowrap'}>Win Rate:</div>
         <div className='text font-bold text-emerald-400'>
           {playerData.winRate}%
         </div>
