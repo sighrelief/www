@@ -21,15 +21,16 @@ export function StreamCardClient() {
   })
   const rankedUserRank = rankedUserQuery.data
   useEffect(() => {
-    setInterval(
-      () => {
-        gamesQuery.refetch()
-        rankedUserQuery.refetch()
-      },
-      // 1 minute
-      1000 * 1 * 30
-    )
-  }, [])
+    const interval = setInterval(async () => {
+      try {
+        await Promise.all([gamesQuery.refetch(), rankedUserQuery.refetch()])
+      } catch (e) {
+        console.error('refetch failed:', e)
+      }
+    }, 1000 * 30)
+
+    return () => clearInterval(interval)
+  }, [gamesQuery, rankedUserQuery])
 
   if (!rankedUserRank || !games?.length) {
     return null
