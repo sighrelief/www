@@ -24,8 +24,6 @@ export const leaderboard_router = createTRPCRouter({
       })
     )
     .query(async ({ input }) => {
-      const res = await service.getUserRank(input.channel_id, input.user_id)
-      console.log('leaderboard.get_user_rank', res)
-      return res
+      return await service.getUserRank(input.channel_id, input.user_id)
     }),
 })
