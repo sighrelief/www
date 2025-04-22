@@ -11,16 +11,15 @@ export function StreamCardClient() {
     return null
   }
 
-  const [gamesQueryResult, gamesQuery] =
-    api.history.user_games.useSuspenseQuery({ user_id: id })
+  const gamesQuery = api.history.user_games.useQuery({ user_id: id })
+  const gamesQueryResult = gamesQuery.data
   const games = gamesQueryResult || [] // Ensure games is always an array
 
-  const [rankedUserRank, rankedUserQuery] =
-    api.leaderboard.get_user_rank.useSuspenseQuery({
-      channel_id: RANKED_CHANNEL,
-      user_id: id,
-    })
-
+  const rankedUserQuery = api.leaderboard.get_user_rank.useQuery({
+    channel_id: RANKED_CHANNEL,
+    user_id: id,
+  })
+  const rankedUserRank = rankedUserQuery.data
   useEffect(() => {
     setInterval(
       () => {
