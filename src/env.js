@@ -17,6 +17,7 @@ export const env = createEnv({
     DISCORD_BOT_TOKEN: z.string(),
     DATABASE_URL: z.string().url(),
     REDIS_URL: z.string().url(),
+    WEBHOOK_QUERY_SECRET: z.string(),
     NODE_ENV: z
       .enum(['development', 'test', 'production'])
       .default('development'),
@@ -44,6 +45,7 @@ export const env = createEnv({
     REDIS_URL: process.env.REDIS_URL,
     NODE_ENV: process.env.NODE_ENV,
     CRON_SECRET: process.env.CRON_SECRET,
+    WEBHOOK_QUERY_SECRET: process.env.WEBHOOK_QUERY_SECRET,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
