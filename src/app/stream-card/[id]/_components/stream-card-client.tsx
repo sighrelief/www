@@ -2,7 +2,6 @@
 
 import { RANKED_CHANNEL } from '@/shared/constants'
 import { api } from '@/trpc/react'
-import { ArrowDown, ArrowUp } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useEffect } from 'react'
 
@@ -29,7 +28,7 @@ export function StreamCardClient() {
         rankedUserQuery.refetch()
       },
       // 1 minute
-      1000 * 60 * 1
+      1000 * 1
     )
   }, [])
 
@@ -73,7 +72,7 @@ export function StreamCardClient() {
       meaningful_games > 0 ? Math.floor((losses / meaningful_games) * 100) : 0,
     rank: rankedUserRank.rank,
     mmr: Math.round(rankedUserRank.mmr),
-    mmrChange: `${(lastGame?.mmrChange ?? 0) >= 0 ? '+' : '-'}${Math.round(lastGame?.mmrChange ?? 0)}`,
+    mmrChange: `${(lastGame?.mmrChange ?? 0) >= 0 ? '+' : ''}${Math.round(lastGame?.mmrChange ?? 0)}`,
     streak: rankedUserRank?.streak,
   }
   return (

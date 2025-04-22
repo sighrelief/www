@@ -14,11 +14,14 @@ export const history_router = createTRPCRouter({
       })
     )
     .query(async ({ ctx, input }) => {
-      return await ctx.db
+      const res = await ctx.db
         .select()
         .from(player_games)
         .where(eq(player_games.playerId, input.user_id))
         .orderBy(desc(player_games.gameNum))
+
+      console.log('history.user_games', res)
+      return res
     }),
   sync: publicProcedure.mutation(async () => {
     return syncHistory()
