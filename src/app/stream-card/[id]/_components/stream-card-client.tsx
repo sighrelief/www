@@ -28,7 +28,7 @@ export function StreamCardClient() {
         rankedUserQuery.refetch()
       },
       // 1 minute
-      1000 * 1
+      1000 * 1 * 30
     )
   }, [])
 
