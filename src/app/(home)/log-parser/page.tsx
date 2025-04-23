@@ -417,52 +417,58 @@ export default function LogParser() {
           ))}
         </div>
         <div>
-          {moneyReports.map((report, i) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-            <div key={i}>
-              <div className='font-bold text-lg'>Game {i + 1}</div>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className={'text-right font-mono'}>
-                      Shop #
-                    </TableHead>
-                    <TableHead className={'text-right font-mono'}>
-                      Logs owner
-                    </TableHead>
-                    <TableHead className={'text-right font-mono'}>
-                      Opponent
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {report.spentPerShop.map((spent, j) => (
-                    // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-                    <TableRow key={j}>
+          {moneyReports.map((report, i) => {
+            const mostShops =
+              report.spentPerShop.length > report.spentPerShopOpponent.length
+                ? report.spentPerShop.length
+                : report.spentPerShopOpponent.length
+            return (
+              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+              <div key={i}>
+                <div className='font-bold text-lg'>Game {i + 1}</div>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className={'text-right font-mono'}>
+                        Shop #
+                      </TableHead>
+                      <TableHead className={'text-right font-mono'}>
+                        Logs owner
+                      </TableHead>
+                      <TableHead className={'text-right font-mono'}>
+                        Opponent
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {Array.from({ length: mostShops }).map((_, j) => (
+                      // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                      <TableRow key={j}>
+                        <TableCell className={'text-right font-mono'}>
+                          {j + 1}
+                        </TableCell>
+                        <TableCell className={'text-right font-mono'}>
+                          {report.spentPerShop[j] ?? 'Skipped'}
+                        </TableCell>
+                        <TableCell className={'text-right font-mono'}>
+                          {report.spentPerShopOpponent[j] ?? 'Skipped'}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow>
+                      <TableCell>Total</TableCell>
                       <TableCell className={'text-right font-mono'}>
-                        {j + 1}
+                        {report.totalSpent}
                       </TableCell>
                       <TableCell className={'text-right font-mono'}>
-                        {spent ?? 'Skipped'}
-                      </TableCell>
-                      <TableCell className={'text-right font-mono'}>
-                        {report.spentPerShopOpponent[j] ?? 'Skipped'}
+                        {report.totalSpentOpponent}
                       </TableCell>
                     </TableRow>
-                  ))}
-                  <TableRow>
-                    <TableCell>Total</TableCell>
-                    <TableCell className={'text-right font-mono'}>
-                      {report.totalSpent}
-                    </TableCell>
-                    <TableCell className={'text-right font-mono'}>
-                      {report.totalSpentOpponent}
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </div>
-          ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>

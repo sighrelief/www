@@ -9,7 +9,8 @@ import {
 import type React from 'react'
 import { useState } from 'react'
 
-import { GamesTable } from '@/app/players/[id]/_components/games-table'
+import { GamesTable } from '@/app/(home)/players/[id]/_components/games-table'
+import { OpponentsTable } from '@/app/(home)/players/[id]/_components/opponents-table'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -48,6 +49,7 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
 
 export function UserInfo() {
   const [filter, setFilter] = useState('all')
+
   const [leaderboardFilter, setLeaderboardFilter] = useState('all')
   const { id } = useParams()
   if (!id || typeof id !== 'string') return null
@@ -55,15 +57,14 @@ export function UserInfo() {
   // Fetch games data unconditionally
   const gamesQuery = api.history.user_games.useSuspenseQuery({ user_id: id })
   const games = gamesQuery[0] || [] // Ensure games is always an array
-
   const [discord_user] = api.discord.get_user_by_id.useSuspenseQuery({
     user_id: id,
   })
 
-  // Mock data for the two leaderboards - replace with actual API calls
   const [rankedLeaderboard] = api.leaderboard.get_leaderboard.useSuspenseQuery({
     channel_id: RANKED_CHANNEL,
   })
+
   const [vanillaLeaderboard] = api.leaderboard.get_leaderboard.useSuspenseQuery(
     {
       channel_id: VANILLA_CHANNEL,
@@ -78,11 +79,13 @@ export function UserInfo() {
     user_id: id,
   })
 
-  // Filter games by leaderboard if needed
   const filteredGamesByLeaderboard =
     leaderboardFilter === 'all'
       ? games
-      : games.filter((game) => game.gameType === leaderboardFilter)
+      : games.filter(
+          (game) =>
+            game.gameType.toLowerCase() === leaderboardFilter?.toLowerCase()
+        )
 
   // Filter by result
   const filteredGames =
@@ -332,6 +335,7 @@ export function UserInfo() {
           <div className='mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center'>
             <TabsList className='bg-gray-100 dark:bg-zinc-800'>
               <TabsTrigger value='matches'>Match History</TabsTrigger>
+              <TabsTrigger value='opponents'>Opponents</TabsTrigger>
               <TabsTrigger value='stats'>Statistics</TabsTrigger>
               <TabsTrigger value='achievements'>Achievements</TabsTrigger>
             </TabsList>
@@ -373,6 +377,13 @@ export function UserInfo() {
             <div className='overflow-hidden rounded-lg border'>
               <div className='overflow-x-auto'>
                 <GamesTable games={filteredGames} />
+              </div>
+            </div>
+          </TabsContent>
+          <TabsContent value='opponents' className='m-0'>
+            <div className='overflow-hidden rounded-lg border'>
+              <div className='overflow-x-auto'>
+                <OpponentsTable games={filteredGames} />
               </div>
             </div>
           </TabsContent>
