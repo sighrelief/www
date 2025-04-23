@@ -1,37 +1,18 @@
 'use client'
 
+import { cn } from '@/lib/utils'
+import type { SelectGames } from '@/server/db/types'
+import type { LeaderboardEntry } from '@/server/services/neatqueue.service'
 import { RANKED_CHANNEL } from '@/shared/constants'
 import { api } from '@/trpc/react'
+import { Swords } from 'lucide-react'
 import { useParams } from 'next/navigation'
-import { useEffect } from 'react'
+import { type ComponentPropsWithoutRef, useEffect, useState } from 'react'
 
-export function StreamCardClient() {
-  const { id } = useParams()
-  if (!id || typeof id !== 'string') {
-    return null
-  }
-
-  const [gamesQueryResult, gamesQuery] =
-    api.history.user_games.useSuspenseQuery({ user_id: id })
-  const games = gamesQueryResult || [] // Ensure games is always an array
-
-  const [rankedUserRank, rankedUserQuery] =
-    api.leaderboard.get_user_rank.useSuspenseQuery({
-      channel_id: RANKED_CHANNEL,
-      user_id: id,
-    })
-
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      await Promise.all([gamesQuery.refetch(), rankedUserQuery.refetch()])
-    }, 1000 * 60)
-
-    return () => clearInterval(interval)
-  }, [])
-
-  if (!rankedUserRank || !games?.length) {
-    return null
-  }
+function getPlayerData(
+  playerLeaderboardEntry: LeaderboardEntry,
+  games: SelectGames[]
+) {
   const filteredGamesByLeaderboard = games.filter(
     (game) => game.gameType === 'ranked'
   )
@@ -53,10 +34,10 @@ export function StreamCardClient() {
   }
 
   const lastGame = filteredGamesByLeaderboard.at(0)
-
   const currentName = lastGame?.playerName
   const meaningful_games = games_played - ties
-  const playerData = {
+
+  return {
     username: currentName,
     games: games_played,
     meaningful_games,
@@ -67,22 +48,151 @@ export function StreamCardClient() {
       meaningful_games > 0 ? Math.ceil((wins / meaningful_games) * 100) : 0,
     lossRate:
       meaningful_games > 0 ? Math.floor((losses / meaningful_games) * 100) : 0,
-    rank: rankedUserRank.rank,
-    mmr: Math.round(rankedUserRank.mmr),
-    mmrChange: `${(lastGame?.mmrChange ?? 0) >= 0 ? '+' : ''}${Math.round(lastGame?.mmrChange ?? 0)}`,
-    streak: rankedUserRank?.streak,
+    rank: playerLeaderboardEntry.rank,
+    mmr: Math.round(playerLeaderboardEntry.mmr),
+    mmrChange: `${(lastGame?.mmrChange ?? 0) >= 0 ? '+' : ''}${Math.round(
+      lastGame?.mmrChange ?? 0
+    )}`,
+    streak: playerLeaderboardEntry?.streak,
   }
+}
+
+export function StreamCardClient() {
+  const { id } = useParams()
+  if (!id || typeof id !== 'string') {
+    return null
+  }
+
+  const [gamesQueryResult, gamesQuery] =
+    api.history.user_games.useSuspenseQuery({ user_id: id })
+  const games = gamesQueryResult || []
+
+  const [rankedUserRank, rankedUserQuery] =
+    api.leaderboard.get_user_rank.useSuspenseQuery({
+      channel_id: RANKED_CHANNEL,
+      user_id: id,
+    })
+
+  const result = api.playerState.onStateChange.useSubscription(
+    { userId: id },
+    {
+      onData: async () => {
+        await Promise.all([gamesQuery.refetch(), rankedUserQuery.refetch()])
+      },
+    }
+  )
+
+  const playerState = result.data?.data
+
+  if (!rankedUserRank || !games?.length) {
+    return null
+  }
+
+  const playerData = getPlayerData(rankedUserRank, games)
+
+  const isQueuing = playerState?.status === 'queuing'
+  const opponentId = playerState?.currentMatch?.opponentId
+  return (
+    <div className={'flex items-center gap-2'} style={{ zoom: '200%' }}>
+      <PlayerInfo playerData={playerData}>
+        {isQueuing && playerState.queueStartTime && (
+          <QueueTimer startTime={playerState.queueStartTime} />
+        )}
+      </PlayerInfo>
+      {opponentId && (
+        <>
+          <span>
+            <Swords />
+          </span>{' '}
+          <Opponent id={opponentId} />
+        </>
+      )}
+    </div>
+  )
+}
+
+export function formatDuration(ms: number): string {
+  const seconds = Math.floor(ms / 1000)
+  const minutes = Math.floor(seconds / 60)
+  const hours = Math.floor(minutes / 60)
+
+  if (hours > 0) {
+    return `${hours}h ${minutes % 60}m`
+  }
+  if (minutes > 0) {
+    return `${minutes}m ${seconds % 60}s`
+  }
+  return `${seconds}s`
+}
+
+function QueueTimer({ startTime }: { startTime: number }) {
+  const [queueTime, setQueueTime] = useState(Date.now() - startTime)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setQueueTime(Date.now() - startTime)
+    }, 1000)
+    return () => clearInterval(interval)
+  })
+
+  return (
+    <div className='flex animate-pulse items-center gap-1.5 border-slate-700 px-2'>
+      <div>Queueing for </div>
+      <div className='font-bold text-emerald-400'>
+        {formatDuration(queueTime)}
+      </div>
+    </div>
+  )
+}
+
+function Opponent({ id }: { id: string }) {
+  const [gamesQueryResult] = api.history.user_games.useSuspenseQuery({
+    user_id: id,
+  })
+  const games = gamesQueryResult || []
+
+  const [rankedUserRank] = api.leaderboard.get_user_rank.useSuspenseQuery({
+    channel_id: RANKED_CHANNEL,
+    user_id: id,
+  })
+  if (!rankedUserRank || !games?.length) {
+    return null
+  }
+
+  const playerData = getPlayerData(rankedUserRank, games)
+  return <PlayerInfo playerData={playerData} isReverse />
+}
+
+function PlayerInfo({
+  playerData,
+  className,
+  children,
+  isReverse = false,
+  ...rest
+}: {
+  playerData: ReturnType<typeof getPlayerData>
+  isReverse?: boolean
+} & ComponentPropsWithoutRef<'div'>) {
   return (
     <div
-      style={{ zoom: '200%' }}
-      className='flex h-10 w-fit max-w-[800px] items-center overflow-hidden rounded-md border-2 border-slate-800 bg-slate-900/90 text-white shadow-lg backdrop-blur-sm'
+      className={cn(
+        'flex h-10 w-fit max-w-[800px] items-center overflow-hidden border-2 border-slate-800 bg-slate-900/90 text-white shadow-lg backdrop-blur-sm',
+        isReverse ? 'flex-row-reverse' : 'flex-row',
+        className
+      )}
+      {...rest}
     >
-      <div className='flex h-full items-center gap-1 border-slate-700 border-r bg-gradient-to-r from-indigo-600 to-purple-600 px-2'>
+      <div className='flex aspect-square h-full items-center justify-center gap-1 border-slate-700 border-r bg-gradient-to-r from-indigo-600 to-purple-600 px-2'>
         <span className='font-bold text-sm'>{playerData.rank}</span>
       </div>
 
       {/* Player Name */}
-      <div className='max-w-[180px] flex-shrink-0 border-slate-700 border-r px-2'>
+      <div
+        className={cn(
+          'max-w-[180px] flex-shrink-0 border-slate-700 px-2',
+          !isReverse && 'border-r'
+        )}
+      >
         <div className='truncate font-medium'>{playerData.username}</div>
       </div>
 
@@ -95,7 +205,7 @@ export function StreamCardClient() {
 
       {/* Win Rate */}
       <div className='flex items-center gap-1.5 text-nowrap border-slate-700 border-r px-2'>
-        <div className={'text-nowrap'}>Win Rate:</div>
+        <div className='text-nowrap'>Win Rate:</div>
         <div className='text font-bold text-emerald-400'>
           {playerData.winRate}%
         </div>
@@ -117,10 +227,17 @@ export function StreamCardClient() {
       </div>
 
       {/* Streak */}
-      <div className='flex items-center gap-1.5 border-slate-700 px-2'>
+      <div
+        className={cn(
+          'flex items-center gap-1.5 border-slate-700 px-2',
+          (children || isReverse) && 'border-r'
+        )}
+      >
         <div>Streak:</div>
         <div className='font-bold text-emerald-400'>{playerData.streak}</div>
       </div>
+
+      {children}
     </div>
   )
 }

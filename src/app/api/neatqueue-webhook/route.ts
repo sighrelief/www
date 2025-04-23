@@ -1,4 +1,10 @@
 import crypto from 'node:crypto'
+import { globalEmitter } from '@/lib/events'
+import { syncHistory } from '@/server/api/routers/history'
+import type { PlayerState } from '@/server/api/routers/player-state'
+import { PLAYER_STATE_KEY, redis } from '@/server/redis'
+import { leaderboardService } from '@/server/services/leaderboard'
+import { RANKED_CHANNEL, VANILLA_CHANNEL } from '@/shared/constants'
 import { type NextRequest, NextResponse } from 'next/server'
 
 const EXPECTED_QUERY_SECRET = process.env.WEBHOOK_QUERY_SECRET
@@ -42,8 +48,6 @@ function verifyQuerySecret(req: NextRequest): boolean {
  * Verifies query secret, logs payload, and handles actions.
  */
 export async function POST(req: NextRequest) {
-  let payload: any
-
   try {
     const isVerified = verifyQuerySecret(req)
     if (!isVerified) {
@@ -54,7 +58,66 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    payload = await req.json()
+    const payload = await req.json()
+
+    switch (payload.action) {
+      case 'JOIN_QUEUE': {
+        const state: PlayerState = {
+          status: 'queuing',
+          queueStartTime: Date.now(),
+        }
+        const userId = payload.new_players[0].id
+        console.log('-----JOIN QUEUE-----')
+        console.dir(payload, { depth: null })
+        console.log(userId)
+        await redis.set(PLAYER_STATE_KEY(userId), JSON.stringify(state))
+        globalEmitter.emit(`state-change:${userId}`, state)
+        break
+      }
+
+      case 'MATCH_STARTED': {
+        const playerIds = payload.players.map((p: any) => p.id) as string[]
+
+        await Promise.all(
+          playerIds.map(async (id) => {
+            const state = {
+              status: 'in_game',
+              currentMatch: {
+                opponentId: playerIds.find((p) => p !== id),
+                startTime: Date.now(),
+              },
+            }
+            await redis.set(PLAYER_STATE_KEY(id), JSON.stringify(state))
+            globalEmitter.emit(`state-change:${id}`, state)
+          })
+        )
+        break
+      }
+
+      case 'MATCH_COMPLETED': {
+        const playerIds = payload.teams.map((p: any) => p[0].id) as string[]
+        console.log({ playerIds })
+        await syncHistory()
+        if ([RANKED_CHANNEL, VANILLA_CHANNEL].includes(payload.channel)) {
+          await leaderboardService.refreshLeaderboard(payload.channel)
+        }
+        await Promise.all(
+          playerIds.map(async (id) => {
+            await redis.del(PLAYER_STATE_KEY(id))
+            globalEmitter.emit(`state-change:${id}`, { status: 'idle' })
+          })
+        ).catch(console.error)
+
+        break
+      }
+
+      case 'LEAVE_QUEUE': {
+        const userId = payload.players_removed[0].id
+        await redis.del(PLAYER_STATE_KEY(userId))
+        globalEmitter.emit(`state-change:${userId}`, { status: 'idle' })
+        break
+      }
+    }
 
     console.log(
       '--- Verified Webhook Received (Query Auth) ---',

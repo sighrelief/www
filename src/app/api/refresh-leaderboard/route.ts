@@ -1,5 +1,5 @@
 import { env } from '@/env'
-import { LeaderboardService } from '@/server/services/leaderboard'
+import { leaderboardService } from '@/server/services/leaderboard'
 import { RANKED_CHANNEL, VANILLA_CHANNEL } from '@/shared/constants'
 import { headers } from 'next/headers'
 
@@ -14,12 +14,10 @@ export async function POST() {
   }
 
   try {
-    const service = new LeaderboardService()
-
     for (const channelId of CHANNEL_IDS) {
       try {
         console.log(`refreshing leaderboard for ${channelId}...`)
-        await service.refreshLeaderboard(channelId)
+        await leaderboardService.refreshLeaderboard(channelId)
       } catch (err) {
         console.error('refresh failed:', err)
         return new Response('internal error', { status: 500 })

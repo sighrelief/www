@@ -1,5 +1,5 @@
 import { redis } from '../redis'
-import { neatqueue_service } from './neatqueue.service'
+import { type LeaderboardEntry, neatqueue_service } from './neatqueue.service'
 
 export class LeaderboardService {
   private getZSetKey(channel_id: string) {
@@ -56,23 +56,19 @@ export class LeaderboardService {
 
   async getUserRank(channel_id: string, user_id: string) {
     try {
-      const zsetKey = this.getZSetKey(channel_id)
-      const rank = await redis.zrevrank(zsetKey, user_id)
-
-      if (rank === null) return null
-
       const userData = await redis.hgetall(this.getUserKey(user_id, channel_id))
       if (!userData) return null
 
       return {
-        rank: rank + 1,
         ...userData,
         mmr: Number(userData.mmr),
         streak: userData.streak,
-      }
+      } as unknown as LeaderboardEntry
     } catch (error) {
       console.error('Error getting user rank:', error)
       throw error
     }
   }
 }
+
+export const leaderboardService = new LeaderboardService()
