@@ -1,6 +1,12 @@
 'use client'
 
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -13,6 +19,7 @@ import { GamesTable } from '@/app/(home)/players/[id]/_components/games-table'
 import { OpponentsTable } from '@/app/(home)/players/[id]/_components/opponents-table'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   Select,
   SelectContent,
@@ -30,13 +37,15 @@ import {
   BarChart3,
   ChevronDown,
   ChevronUp,
+  EllipsisVertical,
   Filter,
   IceCreamCone,
-  InfoIcon,
   ShieldHalf,
   Star,
   Trophy,
 } from 'lucide-react'
+import { ExternalIcon } from 'next/dist/client/components/react-dev-overlay/ui/icons/external'
+import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { isNonNullish } from 'remeda'
 
@@ -161,13 +170,12 @@ export function UserInfo() {
 
             <div className='text-center md:text-left'>
               <div className={'flex items-start gap-2'}>
-                <h1 className='font-bold text-3xl text-gray-900 dark:text-white'>
-                  {profileData.username}
-                </h1>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <InfoIcon className={'size-4'} />
+                      <h1 className='font-bold text-3xl text-gray-900 underline decoration-auto decoration-dotted underline-offset-6 dark:text-white'>
+                        {profileData.username}
+                      </h1>
                     </TooltipTrigger>
                     <TooltipContent align={'center'} sideOffset={5}>
                       <div>
@@ -181,9 +189,23 @@ export function UserInfo() {
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant={'ghost'} size={'iconSm'}>
+                      <EllipsisVertical className={'size-4'} />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem asChild>
+                      <Link href={`/stream-card/${id}`} target={'_blank'}>
+                        Stream widget <ExternalIcon />
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
-              <p className='text-gray-500 text-sm dark:text-zinc-400'>
+              <p className='pt-2 text-gray-500 text-sm dark:text-zinc-400'>
                 {firstGame ? (
                   <>First game: {dateFormatter.format(firstGame.gameTime)}</>
                 ) : (
