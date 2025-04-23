@@ -30,21 +30,26 @@ export const playerStateRouter = createTRPCRouter({
       })
     )
     .subscription(async function* ({ input, ctx, signal }) {
-      const iterator = createEventIterator<PlayerState>(
-        globalEmitter,
-        `state-change:${input.userId}`,
-        { signal: signal }
-      )
+      console.log('subscription started for user:', input.userId)
 
-      // get initial state
-      const initialState = await redis.get(PLAYER_STATE_KEY(input.userId))
-      if (initialState) {
-        yield tracked('initial', JSON.parse(initialState) as PlayerState)
-      }
+      try {
+        const iterator = createEventIterator<PlayerState>(
+          globalEmitter,
+          `state-change:${input.userId}`,
+          { signal: signal }
+        )
 
-      // listen for updates
-      for await (const [state] of iterator) {
-        yield tracked(Date.now().toString(), state)
+        console.log('iterator created')
+
+        for await (const [state] of iterator) {
+          console.log('emitting state:', state)
+          yield tracked(Date.now().toString(), state)
+        }
+      } catch (error) {
+        console.error('subscription error:', error)
+        throw error
+      } finally {
+        console.log('subscription ended for user:', input.userId)
       }
     }),
 })
