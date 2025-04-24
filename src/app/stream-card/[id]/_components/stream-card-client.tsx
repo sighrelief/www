@@ -146,12 +146,12 @@ function QueueTimer({ startTime }: { startTime: number }) {
 }
 
 function Opponent({ id }: { id: string }) {
-  const [gamesQueryResult] = api.history.user_games.useSuspenseQuery({
+  const { data: gamesQueryResult } = api.history.user_games.useQuery({
     user_id: id,
   })
   const games = gamesQueryResult || []
 
-  const [rankedUserRank] = api.leaderboard.get_user_rank.useSuspenseQuery({
+  const { data: rankedUserRank } = api.leaderboard.get_user_rank.useQuery({
     channel_id: RANKED_CHANNEL,
     user_id: id,
   })
