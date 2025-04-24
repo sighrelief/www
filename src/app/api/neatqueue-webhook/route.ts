@@ -98,9 +98,11 @@ export async function POST(req: NextRequest) {
         const playerIds = payload.teams.map((p: any) => p[0].id) as string[]
         console.log({ playerIds })
         await syncHistory()
-        if ([RANKED_CHANNEL, VANILLA_CHANNEL].includes(payload.channel)) {
-          await leaderboardService.refreshLeaderboard(payload.channel)
-        }
+        await Promise.allSettled(
+          [RANKED_CHANNEL, VANILLA_CHANNEL].map((id) =>
+            leaderboardService.refreshLeaderboard(id)
+          )
+        )
         await Promise.all(
           playerIds.map(async (id) => {
             await redis.del(PLAYER_STATE_KEY(id))
