@@ -92,14 +92,16 @@ const useColumns = () => {
             <span
               className={cn(
                 'flex items-center justify-end font-medium font-mono',
-                winRate === 50
-                  ? 'text-zink-800 dark:text-zink-200'
-                  : winRate > 50
-                    ? 'text-emerald-500'
-                    : 'text-rose-500'
+                winRate !== null
+                  ? winRate === 50
+                    ? 'text-zink-800 dark:text-zink-200'
+                    : winRate > 50
+                      ? 'text-emerald-500'
+                      : 'text-rose-500'
+                  : null
               )}
             >
-              {Math.round(winRate)}%
+              {winRate !== null ? `${Math.round(winRate)}%` : 'N/A'}
             </span>
           )
         },
@@ -143,7 +145,7 @@ type Stats = {
   opponentName: string
   opponentId: string
   totalMMRChange: number
-  winRate: number
+  winRate: number | null
 }
 
 function RawOpponentsTable({ games }: { games: SelectGames[] }) {
@@ -157,7 +159,9 @@ function RawOpponentsTable({ games }: { games: SelectGames[] }) {
   const tableData: Stats[] = useMemo(
     () =>
       Object.values(grouped).map((gamesAgainstOpponent) => {
-        const totalGames = gamesAgainstOpponent.length
+        const totalGames = gamesAgainstOpponent.filter(
+          (x) => x.result !== 'tie'
+        ).length
         let wins = 0
         let losses = 0
         let totalMMRChange = 0
@@ -174,7 +178,7 @@ function RawOpponentsTable({ games }: { games: SelectGames[] }) {
           opponentName: gamesAgainstOpponent[0].opponentName,
           opponentId: gamesAgainstOpponent[0].opponentId,
           totalMMRChange,
-          winRate: (wins / totalGames) * 100,
+          winRate: totalGames ? (wins / totalGames) * 100 : null,
         }
         return stats
       }),
