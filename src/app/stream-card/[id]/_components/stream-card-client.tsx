@@ -50,6 +50,7 @@ function getPlayerData(
       meaningful_games > 0 ? Math.floor((losses / meaningful_games) * 100) : 0,
     rank: playerLeaderboardEntry.rank,
     mmr: Math.round(playerLeaderboardEntry.mmr),
+    mmrChangeRaw: lastGame?.mmrChange,
     mmrChange: `${(lastGame?.mmrChange ?? 0) >= 0 ? '+' : ''}${Math.round(
       lastGame?.mmrChange ?? 0
     )}`,
@@ -93,8 +94,11 @@ export function StreamCardClient() {
   const isQueuing = playerState?.status === 'queuing'
   const opponentId = playerState?.currentMatch?.opponentId
   return (
-    <div className={'flex items-center gap-2'} style={{ zoom: '200%' }}>
-      <PlayerInfo playerData={playerData}>
+    <div
+      className={'flex items-center justify-between gap-2 font-m6x11'}
+      style={{ zoom: '200%' }}
+    >
+      <PlayerInfo playerData={playerData} isInBattle={!!opponentId}>
         {isQueuing && playerState.queueStartTime && (
           <QueueTimer startTime={playerState.queueStartTime} />
         )}
@@ -160,7 +164,7 @@ function Opponent({ id }: { id: string }) {
   }
 
   const playerData = getPlayerData(rankedUserRank, games)
-  return <PlayerInfo playerData={playerData} isReverse />
+  return <PlayerInfo playerData={playerData} isReverse isInBattle />
 }
 
 function PlayerInfo({
@@ -168,10 +172,12 @@ function PlayerInfo({
   className,
   children,
   isReverse = false,
+  isInBattle = false,
   ...rest
 }: {
   playerData: ReturnType<typeof getPlayerData>
   isReverse?: boolean
+  isInBattle?: boolean
 } & ComponentPropsWithoutRef<'div'>) {
   return (
     <div
@@ -200,16 +206,27 @@ function PlayerInfo({
       <div className='flex items-center gap-1.5 border-slate-700 border-r px-2'>
         <div>MMR:</div>
         <div className='font-bold'>{playerData.mmr}</div>
-        <div className='text-emerald-400 text-sm'>{playerData.mmrChange}</div>
+        <div
+          className={cn(
+            '!text-emerald-400 text-sm',
+            playerData.mmrChangeRaw &&
+              playerData.mmrChangeRaw < 0 &&
+              '!text-rose-400'
+          )}
+        >
+          {playerData.mmrChange}
+        </div>
       </div>
 
       {/* Win Rate */}
-      <div className='flex items-center gap-1.5 text-nowrap border-slate-700 border-r px-2'>
-        <div className='text-nowrap'>Win Rate:</div>
-        <div className='text font-bold text-emerald-400'>
-          {playerData.winRate}%
+      {!isInBattle && (
+        <div className='flex items-center gap-1.5 text-nowrap border-slate-700 border-r px-2'>
+          <div className='text-nowrap'>WR:</div>
+          <div className='text font-bold text-emerald-400'>
+            {playerData.winRate}%
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Win/Loss */}
       <div className='flex items-center gap-0.5 border-slate-700 border-r px-2'>
@@ -227,15 +244,17 @@ function PlayerInfo({
       </div>
 
       {/* Streak */}
-      <div
-        className={cn(
-          'flex items-center gap-1.5 border-slate-700 px-2',
-          (children || isReverse) && 'border-r'
-        )}
-      >
-        <div>Streak:</div>
-        <div className='font-bold text-emerald-400'>{playerData.streak}</div>
-      </div>
+      {!isInBattle && (
+        <div
+          className={cn(
+            'flex items-center gap-1.5 border-slate-700 px-2',
+            (children || isReverse) && 'border-r'
+          )}
+        >
+          <div>Streak:</div>
+          <div className='font-bold text-emerald-400'>{playerData.streak}</div>
+        </div>
+      )}
 
       {children}
     </div>

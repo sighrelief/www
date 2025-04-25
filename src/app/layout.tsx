@@ -8,7 +8,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getLocale } from 'next-intl/server'
 import PlausibleProvider from 'next-plausible'
 import { Geist } from 'next/font/google'
-
+import localFont from 'next/font/local'
 export const metadata: Metadata = {
   title: {
     template: '%s | Balatro Multiplayer',
@@ -24,6 +24,12 @@ const geist = Geist({
   variable: '--font-geist-sans',
 })
 
+const m6x11 = localFont({
+  src: './_assets/fonts/m6x11.ttf',
+  display: 'swap',
+  variable: '--font-m6x11',
+})
+
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -31,7 +37,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${geist.variable}`}
+      className={`${geist.variable} ${m6x11.variable}`}
       suppressHydrationWarning
     >
       <head>

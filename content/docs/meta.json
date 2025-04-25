@@ -2,6 +2,7 @@
   "pages": [
     "index",
     "getting-started",
+    "multiplayer-content",
     "rulesets",
     "ranked-matchmaking",
     "advanced"
