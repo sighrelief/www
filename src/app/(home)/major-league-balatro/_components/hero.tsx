@@ -7,7 +7,7 @@ export function HeroSection() {
   return (
     <section>
       <div className='container relative z-10 flex flex-col items-center py-16 text-center md:py-24'>
-        <Badge className='mb-4 w-full bg-red-600 text-sm text-white hover:bg-red-700 sm:w-auto'>
+        <Badge className='mb-4 bg-red-600 text-sm text-white hover:bg-red-700'>
           Season 1
         </Badge>
         <h1 className='mb-4 font-extrabold text-4xl tracking-tight md:text-6xl'>
