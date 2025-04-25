@@ -19,14 +19,8 @@ const links = [
     icon: <Info />,
   },
   {
-    type: 'menu' as const,
     text: 'Major League Balatro',
-    items: [
-      {
-        text: 'About',
-        url: '/major-league-balatro',
-      },
-    ],
+    url: '/major-league-balatro',
   },
   {
     text: 'Support Mod Development',
