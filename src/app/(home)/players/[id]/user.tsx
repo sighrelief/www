@@ -16,6 +16,7 @@ import type React from 'react'
 import { useState } from 'react'
 
 import { GamesTable } from '@/app/(home)/players/[id]/_components/games-table'
+import { MmrTrendChart } from '@/app/(home)/players/[id]/_components/mmr-trend-chart'
 import { OpponentsTable } from '@/app/(home)/players/[id]/_components/opponents-table'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -358,6 +359,7 @@ export function UserInfo() {
             <TabsList className='bg-gray-100 dark:bg-zinc-800'>
               <TabsTrigger value='matches'>Match History</TabsTrigger>
               <TabsTrigger value='opponents'>Opponents</TabsTrigger>
+              <TabsTrigger value='mmr-trends'>MMR Trends</TabsTrigger>
               <TabsTrigger value='stats'>Statistics</TabsTrigger>
               <TabsTrigger value='achievements'>Achievements</TabsTrigger>
             </TabsList>
@@ -409,7 +411,13 @@ export function UserInfo() {
               </div>
             </div>
           </TabsContent>
-
+          <TabsContent value='mmr-trends' className='m-0'>
+            <div className='overflow-hidden rounded-lg border'>
+              <div className='overflow-x-auto'>
+                <MmrTrendChart games={games} />
+              </div>
+            </div>
+          </TabsContent>
           <TabsContent value='stats' className='m-0'>
             <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
               {(rankedLeaderboard || lastRankedGame) && (
