@@ -14,7 +14,7 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart'
 import type { SelectGames } from '@/server/db/types'
-import { CartesianGrid, Line, LineChart, XAxis } from 'recharts'
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts'
 
 const chartConfig = {
   mmr: {
@@ -37,7 +37,7 @@ export function MmrTrendChart({ games }: { games: SelectGames[] }) {
         <CardTitle>MMR Trends</CardTitle>
         <CardDescription>All time</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className={'p-2'}>
         <ChartContainer config={chartConfig}>
           <LineChart
             accessibilityLayer
@@ -59,6 +59,12 @@ export function MmrTrendChart({ games }: { games: SelectGames[] }) {
                   day: 'numeric',
                 })
               }
+            />
+            <YAxis
+              dataKey={'mmr'}
+              width={40}
+              tickLine={false}
+              axisLine={false}
             />
             <ChartTooltip
               cursor={false}
