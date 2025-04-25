@@ -1,5 +1,7 @@
+import { PlayerAvatar } from '@/app/(home)/major-league-balatro/_components/player-avatar'
+import { players } from '@/app/(home)/major-league-balatro/_constants/players'
 import { Button } from '@/components/ui/button'
-import { ExternalLink, Twitch, Users, Youtube } from 'lucide-react'
+import { SiTwitch, SiYoutube } from '@icons-pack/react-simple-icons'
 import Link from 'next/link'
 
 export function Organizer() {
@@ -14,7 +16,11 @@ export function Organizer() {
       <div className='mx-auto mt-8 flex max-w-3xl flex-col items-center gap-8 md:flex-row'>
         <div className='relative h-32 w-32 flex-shrink-0 rounded-full bg-muted'>
           <div className='absolute inset-0 flex items-center justify-center'>
-            <Users className='h-16 w-16 text-muted-foreground/50' />
+            <PlayerAvatar
+              className={'size-32'}
+              img={players.zainotv.picture}
+              playerName={players.zainotv.picture}
+            />
           </div>
         </div>
         <div>
@@ -31,7 +37,7 @@ export function Organizer() {
               rel='noopener noreferrer'
             >
               <Button variant='outline' size='sm' className='gap-2'>
-                <Twitch className='h-4 w-4' />
+                <SiTwitch className='h-4 w-4' />
                 Twitch
               </Button>
             </Link>
@@ -41,7 +47,7 @@ export function Organizer() {
               rel='noopener noreferrer'
             >
               <Button variant='outline' size='sm' className='gap-2'>
-                <Youtube className='h-4 w-4' />
+                <SiYoutube className='h-4 w-4' />
                 YouTube
               </Button>
             </Link>

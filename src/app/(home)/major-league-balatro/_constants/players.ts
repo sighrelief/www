@@ -1,6 +1,6 @@
 import type { Player } from '../types'
 
-export const players: Record<string, Player> = {
+export const players = {
   roffle: {
     id: 'roffle',
     name: 'Roffle',
@@ -120,4 +120,4 @@ export const players: Record<string, Player> = {
       youtube: 'seadubbs11',
     },
   },
-}
+} satisfies Record<string, Player>

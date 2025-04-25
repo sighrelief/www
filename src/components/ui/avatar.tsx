@@ -4,6 +4,7 @@ import * as AvatarPrimitive from '@radix-ui/react-avatar'
 import type * as React from 'react'
 
 import { cn } from '@/lib/utils'
+import { CDN_URL } from '@/shared/constants'
 
 function Avatar({
   className,
@@ -23,12 +24,16 @@ function Avatar({
 
 function AvatarImage({
   className,
+  src,
   ...props
 }: React.ComponentProps<typeof AvatarPrimitive.Image>) {
+  const isDev = process.env.NODE_ENV === 'development'
+
   return (
     <AvatarPrimitive.Image
       data-slot='avatar-image'
       className={cn('aspect-square size-full object-cover!', className)}
+      src={isDev ? src : `${CDN_URL}${src}`}
       {...props}
     />
   )
