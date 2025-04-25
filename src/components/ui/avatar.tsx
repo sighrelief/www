@@ -28,12 +28,15 @@ function AvatarImage({
   ...props
 }: React.ComponentProps<typeof AvatarPrimitive.Image>) {
   const isDev = process.env.NODE_ENV === 'development'
-
+  let finalSrc = src
+  if (src?.startsWith('/') && !isDev) {
+    finalSrc = `${CDN_URL}${src}`
+  }
   return (
     <AvatarPrimitive.Image
       data-slot='avatar-image'
       className={cn('aspect-square size-full object-cover!', className)}
-      src={isDev ? src : `${CDN_URL}${src}`}
+      src={finalSrc}
       {...props}
     />
   )
