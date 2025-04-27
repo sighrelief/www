@@ -93,12 +93,31 @@ export function StreamCardClient() {
 
   const isQueuing = playerState?.status === 'queuing'
   const opponentId = playerState?.currentMatch?.opponentId
+
+  let winsVsOpponent = 0
+  let lossesVsOpponent = 0
+  if (opponentId) {
+    for (const game of games) {
+      if (game.opponentId === opponentId) {
+        if (game.result === 'win') {
+          winsVsOpponent++
+        } else if (game.result === 'loss') {
+          lossesVsOpponent++
+        }
+      }
+    }
+  }
+  console.log(winsVsOpponent, lossesVsOpponent)
   return (
     <div
       className={'flex items-center justify-between gap-2 font-m6x11'}
       style={{ zoom: '200%' }}
     >
-      <PlayerInfo playerData={playerData} isInBattle={!!opponentId}>
+      <PlayerInfo
+        playerData={playerData}
+        isInBattle={!!opponentId}
+        wins={winsVsOpponent}
+      >
         {isQueuing && playerState.queueStartTime && (
           <QueueTimer startTime={playerState.queueStartTime} />
         )}
@@ -108,7 +127,7 @@ export function StreamCardClient() {
           <span>
             <Swords />
           </span>{' '}
-          <Opponent id={opponentId} />
+          <Opponent id={opponentId} wins={lossesVsOpponent} />
         </>
       )}
     </div>
@@ -149,7 +168,7 @@ function QueueTimer({ startTime }: { startTime: number }) {
   )
 }
 
-function Opponent({ id }: { id: string }) {
+function Opponent({ id, wins }: { id: string; wins?: number }) {
   const { data: gamesQueryResult } = api.history.user_games.useQuery({
     user_id: id,
   })
@@ -164,7 +183,7 @@ function Opponent({ id }: { id: string }) {
   }
 
   const playerData = getPlayerData(rankedUserRank, games)
-  return <PlayerInfo playerData={playerData} isReverse isInBattle />
+  return <PlayerInfo playerData={playerData} isReverse isInBattle wins={wins} />
 }
 
 function PlayerInfo({
@@ -173,11 +192,13 @@ function PlayerInfo({
   children,
   isReverse = false,
   isInBattle = false,
+  wins,
   ...rest
 }: {
   playerData: ReturnType<typeof getPlayerData>
   isReverse?: boolean
   isInBattle?: boolean
+  wins?: number
 } & ComponentPropsWithoutRef<'div'>) {
   return (
     <div
@@ -189,7 +210,7 @@ function PlayerInfo({
       {...rest}
     >
       <div className='flex aspect-square h-full items-center justify-center gap-1 border-slate-700 border-r bg-gradient-to-r from-indigo-600 to-purple-600 px-2'>
-        <span className='font-bold text-sm'>{playerData.rank}</span>
+        <span className='font-bold text-sm'>#{playerData.rank}</span>
       </div>
 
       {/* Player Name */}
@@ -229,7 +250,12 @@ function PlayerInfo({
       )}
 
       {/* Win/Loss */}
-      <div className='flex items-center gap-0.5 border-slate-700 border-r px-2'>
+      <div
+        className={cn(
+          'flex items-center gap-0.5 border-slate-700 px-2',
+          isReverse && 'border-r'
+        )}
+      >
         <div className='flex items-center'>
           <div className='ml-0.5 font-bold text-emerald-400'>
             {playerData.wins}W
@@ -242,6 +268,16 @@ function PlayerInfo({
           </div>
         </div>
       </div>
+      {isInBattle && (
+        <div
+          className={cn(
+            'flex aspect-square h-full items-center justify-center gap-1 border-slate-700 bg-gradient-to-r px-2',
+            isReverse ? 'mr-4 border-r' : 'ml-4 border-l'
+          )}
+        >
+          <span className='font-bold text-sm'>{wins}</span>
+        </div>
+      )}
 
       {/* Streak */}
       {!isInBattle && (
