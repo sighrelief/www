@@ -108,7 +108,7 @@ const WeekTab = ({ week, matches, status }: WeekTabProps) => {
           (m) => m.week === week || m.week === Number.parseInt(String(week))
         )
         .sort((a, b) => (a.datetime > b.datetime ? 1 : -1)),
-    [(matches, week)]
+    [matches, week]
   )
 
   return (
