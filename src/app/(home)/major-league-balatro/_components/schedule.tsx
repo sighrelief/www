@@ -1,4 +1,5 @@
 import { MatchCard } from '@/app/(home)/major-league-balatro/_components/match-card'
+import { TimeZoneProvider } from '@/components/timezone-provider'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
@@ -117,10 +118,11 @@ const WeekTab = ({ week, matches, status }: WeekTabProps) => {
         <h3 className='font-bold text-xl'>{weekConfig.label}</h3>
         <StatusBadge status={status} />
       </div>
-
-      {filteredMatches.map((match, index) => (
-        <MatchCard key={index} match={match} />
-      ))}
+      <TimeZoneProvider>
+        {filteredMatches.map((match, index) => (
+          <MatchCard key={index} match={match} />
+        ))}
+      </TimeZoneProvider>
     </TabsContent>
   )
 }
