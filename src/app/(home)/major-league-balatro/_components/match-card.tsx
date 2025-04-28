@@ -1,3 +1,4 @@
+'use client'
 import { PlayerAvatar } from '@/app/(home)/major-league-balatro/_components/player-avatar'
 import { players } from '@/app/(home)/major-league-balatro/_constants/players'
 import type { Match } from '@/app/(home)/major-league-balatro/types'
@@ -17,7 +18,7 @@ import {
 } from '@/components/ui/mobile-tooltip'
 import { SiTwitch, SiYoutube } from '@icons-pack/react-simple-icons'
 import { TvMinimalPlay } from 'lucide-react'
-import { useFormatter } from 'next-intl'
+import { useFormatter, useTimeZone } from 'next-intl'
 import Link from 'next/link'
 import type React from 'react'
 
@@ -27,12 +28,15 @@ type MatchCardProps = {
 export const MatchCard = ({ match }: MatchCardProps) => {
   const formatter = useFormatter()
   const { player1Id, player2Id, datetime, completed, vod1, vod2 } = match
+  const timeZone = useTimeZone()
   const date = formatter.dateTime(datetime, {
     month: 'long',
     day: 'numeric',
+    timeZone,
   })
   const time = formatter.dateTime(datetime, {
     timeStyle: 'short',
+    timeZone,
   })
   const player1 = players[player1Id]
   const player2 = players[player2Id]
