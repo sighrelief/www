@@ -62,8 +62,7 @@ type StatusBadgeProps = {
 }
 
 const StatusBadge = ({ status }: StatusBadgeProps) => {
-  const { variant, className } =
-    WEEK_CONFIG[status]?.badgeProps || DEFAULT_BADGE_PROPS
+  const { variant } = WEEK_CONFIG[status]?.badgeProps || DEFAULT_BADGE_PROPS
 
   const text =
     status === 'completed'
@@ -104,10 +103,12 @@ const WeekTab = ({ week, matches, status }: WeekTabProps) => {
   }
   const filteredMatches = useMemo(
     () =>
-      matches.filter(
-        (m) => m.week === week || m.week === Number.parseInt(String(week))
-      ),
-    [matches, week]
+      matches
+        .filter(
+          (m) => m.week === week || m.week === Number.parseInt(String(week))
+        )
+        .sort((a, b) => (a.datetime > b.datetime ? 1 : -1)),
+    [(matches, week)]
   )
 
   return (

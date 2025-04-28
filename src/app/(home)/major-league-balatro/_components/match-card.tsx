@@ -52,7 +52,7 @@ export const MatchCard = ({ match }: MatchCardProps) => {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <span>
+                  <span className={'cursor-help'}>
                     {date} • {time}
                   </span>
                 </TooltipTrigger>
@@ -94,7 +94,11 @@ export const MatchCard = ({ match }: MatchCardProps) => {
                             target='_blank'
                             rel='noopener noreferrer'
                           >
-                            <SiYoutube className='h-4 w-4' />
+                            {vod1.includes('twitch') ? (
+                              <SiTwitch className='h-4 w-4' />
+                            ) : (
+                              <SiYoutube className='h-4 w-4' />
+                            )}
                             {player1.name}
                           </Link>
                         </DropdownMenuItem>
@@ -106,7 +110,11 @@ export const MatchCard = ({ match }: MatchCardProps) => {
                             target='_blank'
                             rel='noopener noreferrer'
                           >
-                            <SiYoutube className='h-4 w-4' />
+                            {vod2.includes('twitch') ? (
+                              <SiTwitch className='h-4 w-4' />
+                            ) : (
+                              <SiYoutube className='h-4 w-4' />
+                            )}
                             {player2.name}
                           </Link>
                         </DropdownMenuItem>

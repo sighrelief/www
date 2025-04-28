@@ -16,8 +16,6 @@ export type Match = {
   division: 'Blue' | 'Red' | 'Playoff' | 'Finals'
   player1Id: keyof typeof players
   player2Id: keyof typeof players
-  date: string
-  time: string
   datetime: Date
   vod1?: string
   vod2?: string

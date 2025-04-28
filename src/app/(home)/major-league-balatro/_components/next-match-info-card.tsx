@@ -6,7 +6,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { SiTwitch } from '@icons-pack/react-simple-icons'
-import { Twitch } from 'lucide-react'
 import Link from 'next/link'
 import type { Player } from '../types'
 import { PlayerAvatar } from './player-avatar'

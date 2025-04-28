@@ -2,6 +2,7 @@ import { NextMatchInfoCard } from '@/app/(home)/major-league-balatro/_components
 import { CountdownTimer } from '@/components/countdown-timer'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Calendar, Clock } from 'lucide-react'
+import { useFormatter } from 'next-intl'
 import type { PropsWithChildren } from 'react'
 import { players } from '../_constants/players'
 import type { Match } from '../types'
@@ -11,6 +12,7 @@ export type NextMatchInfoProps = {
 }
 
 export function NextMatchInfo({ nextMatch }: NextMatchInfoProps) {
+  const formatter = useFormatter()
   if (!nextMatch) {
     return (
       <SectionContainer>
@@ -39,6 +41,15 @@ export function NextMatchInfo({ nextMatch }: NextMatchInfoProps) {
   const nextMatchPlayer1 = players[nextMatch.player1Id]
   const nextMatchPlayer2 = players[nextMatch.player2Id]
 
+  const date = formatter.dateTime(nextMatch.datetime, {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  })
+  const time = formatter.dateTime(nextMatch.datetime, {
+    timeStyle: 'short',
+  })
+
   if (!nextMatchPlayer1) {
     throw new Error(`Player ${nextMatch.player1Id} not found`)
   }
@@ -57,7 +68,7 @@ export function NextMatchInfo({ nextMatch }: NextMatchInfoProps) {
             <div className='flex items-center justify-center gap-2 text-red-500'>
               <Clock className='h-5 w-5 animate-pulse' />
               <p className='text-sm md:text-base'>
-                {nextMatch.date} - {nextMatch.time}
+                {date} • {time}
               </p>
             </div>
           </div>
