@@ -2,7 +2,7 @@ import { NextMatchInfoCard } from '@/app/(home)/major-league-balatro/_components
 import { CountdownTimer } from '@/components/countdown-timer'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Calendar, Clock } from 'lucide-react'
-import { useFormatter } from 'next-intl'
+import { useFormatter, useTimeZone } from 'next-intl'
 import type { PropsWithChildren } from 'react'
 import { players } from '../_constants/players'
 import type { Match } from '../types'
@@ -12,6 +12,7 @@ export type NextMatchInfoProps = {
 }
 
 export function NextMatchInfo({ nextMatch }: NextMatchInfoProps) {
+  const timeZone = useTimeZone()
   const formatter = useFormatter()
   if (!nextMatch) {
     return (
@@ -45,9 +46,11 @@ export function NextMatchInfo({ nextMatch }: NextMatchInfoProps) {
     month: 'long',
     day: 'numeric',
     year: 'numeric',
+    timeZone,
   })
   const time = formatter.dateTime(nextMatch.datetime, {
     timeStyle: 'short',
+    timeZone,
   })
 
   if (!nextMatchPlayer1) {

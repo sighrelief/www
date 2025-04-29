@@ -1,4 +1,4 @@
-import { Standings } from '@/app/(home)/major-league-balatro/_components/standings'
+import { TimeZoneProvider } from '@/components/timezone-provider'
 import Link from 'next/link'
 import { Competitors } from './_components/competitors'
 import { HeroSection } from './_components/hero'
@@ -25,9 +25,9 @@ export default function MLBPage() {
     <div className='flex min-h-screen flex-col'>
       <main className='flex-1'>
         <HeroSection />
-
-        <NextMatchInfo nextMatch={nextMatch} />
-
+        <TimeZoneProvider>
+          <NextMatchInfo nextMatch={nextMatch} />
+        </TimeZoneProvider>
         {/*<Standings />*/}
 
         <TournamentFormat />
