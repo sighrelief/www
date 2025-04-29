@@ -1,3 +1,4 @@
+'use client'
 import { NextMatchInfoCard } from '@/app/(home)/major-league-balatro/_components/next-match-info-card'
 import { CountdownTimer } from '@/components/countdown-timer'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
