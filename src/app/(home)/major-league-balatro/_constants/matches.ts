@@ -212,7 +212,9 @@ export const matches: Match[] = [
     player1Id: 'roffle',
     player2Id: 'gothic',
     datetime: new Date('2025-04-29T14:00:00-04:00'),
-    completed: false,
+    vod1: 'https://www.twitch.tv/videos/2445894419?t=0h18m45s',
+    vod2: 'https://www.twitch.tv/videos/2445877561?t=0h42m53s',
+    completed: true,
     week: 4,
   },
   {
