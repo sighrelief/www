@@ -17,6 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { useFormatter } from 'next-intl'
 import { useState } from 'react'
 
 type LogLine = {
@@ -81,6 +82,7 @@ const formatDuration = (seconds: number): string => {
 }
 
 export default function LogParser() {
+  const formatter = useFormatter()
   const [logLines, setLogLines] = useState<LogLine[]>([])
   const [moneyReports, setMoneyReports] = useState<
     {
@@ -96,13 +98,14 @@ export default function LogParser() {
       games: [],
     }
     let lastSeenDeck = null
+    let lastSeenLobbyOptions = null
 
     const lines: LogLine[] = []
-
     try {
       const content = await file.text()
       const logLines = content.split('\n')
-
+      const { seeds, lobbyInfos } = getGamesConfigs(logLines)
+      console.log(seeds)
       for (const line of logLines) {
         const timeMatch = line.match(/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/)
         const timestamp = timeMatch?.[1] ? new Date(timeMatch[1]) : new Date()
@@ -161,12 +164,20 @@ export default function LogParser() {
         }
 
         if (lineLower.includes('lobbyoptions')) {
-          const deckMatch = line.match(/back: ([^)]+)\)/)
-          const seedTypeMatch = line.match(/custom_seed: ([^)]+)/)
+          const parts = line.split(' Client sent message:')
+          const params = {} as any
+          const paramsString = parts[1]?.trim()?.split(',')
+          if (!paramsString) {
+            continue
+          }
+          for (const paramString of paramsString) {
+            const [key, value] = paramString.split(':')
+            if (!key || !value) continue
 
-          console.log(deckMatch, seedTypeMatch)
-
-          lastSeenDeck = deckMatch?.[1] || null
+            params[key.trim()] = value.trim()
+          }
+          lastSeenDeck = params.back || null
+          lastSeenLobbyOptions = params
           continue
         }
 
@@ -180,11 +191,12 @@ export default function LogParser() {
           const seedMatch = line.match(/seed:\s*([^) ]+)/)
           state.currentGame.startDate = timestamp
           state.currentGame.seed = seedMatch?.[1] || null
-
+          const lobbyInfo = lobbyInfos.shift()
+          console.log({ lobbyInfo, lastSeenLobbyOptions })
           lines.push(
             { text: '=== New Game Started ===', type: 'system' },
             {
-              text: `Start Time: ${state.currentGame.startDate.toISOString()}`,
+              text: `Start Time: ${formatter.dateTime(state.currentGame.startDate, { timeStyle: 'medium', dateStyle: 'medium' })}`,
               type: 'system',
             },
             {
@@ -192,13 +204,69 @@ export default function LogParser() {
               type: 'system',
             },
             {
-              text: `Seed: ${state.currentGame.seed || 'Unknown'}`,
+              text: `Seed: ${seeds.shift() || 'Unknown'}`,
               type: 'system',
             },
             {
-              text: `Custom Seed: ${state.currentGame.seedType || 'unknown'}`,
+              text: `Custom Seed: ${lastSeenLobbyOptions?.custom_seed || 'unknown'}`,
               type: 'system',
             },
+            {
+              text: `Ruleset: ${lastSeenLobbyOptions?.ruleset || 'unknown'}`,
+              type: 'system',
+            },
+            {
+              text: `Different decks: ${boolStrToText(lastSeenLobbyOptions?.different_decks)}`,
+              type: 'system',
+            },
+            {
+              text: `Different seeds: ${boolStrToText(lastSeenLobbyOptions?.different_seeds)}`,
+              type: 'system',
+            },
+            {
+              text: `Death on round loss: ${boolStrToText(lastSeenLobbyOptions?.death_on_round_loss)}`,
+              type: 'system',
+            },
+            {
+              text: `Gold on life loss: ${boolStrToText(lastSeenLobbyOptions?.gold_on_life_loss)}`,
+              type: 'system',
+            },
+            {
+              text: `No gold on round loss: ${boolStrToText(lastSeenLobbyOptions?.no_gold_on_round_loss)}`,
+              type: 'system',
+            },
+            {
+              text: `Starting lives: ${lastSeenLobbyOptions?.starting_lives || 'Unknown'}`,
+              type: 'system',
+            },
+            {
+              text: `Stake: ${lastSeenLobbyOptions?.stake || 'Unknown'}`,
+              type: 'system',
+            },
+            {
+              text: `Host: ${lobbyInfo?.host || 'Unknown'}`,
+              type: 'system',
+            },
+            {
+              text: 'Host mods:',
+              type: 'system',
+            },
+            ...(lobbyInfo?.hostHash.map((x) => ({
+              text: `\t${x}`,
+              type: 'system' as const,
+            })) ?? []),
+            {
+              text: `Guest: ${lobbyInfo?.guest || 'Unknown'}`,
+              type: 'system',
+            },
+            {
+              text: 'Guest mods:',
+              type: 'system',
+            },
+            ...(lobbyInfo?.guestHash.map((x) => ({
+              text: `\t${x}`,
+              type: 'system' as const,
+            })) ?? []),
             { text: '===================', type: 'system' },
             { text: '', type: 'system' }
           )
@@ -404,7 +472,7 @@ export default function LogParser() {
             <div
               // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
               key={i}
-              className={`py-2 ${
+              className={`whitespace-pre py-2 ${
                 line.type === 'event'
                   ? 'text-blue-400'
                   : line.type === 'status'
@@ -473,4 +541,117 @@ export default function LogParser() {
       </div>
     </div>
   )
+}
+
+function getGamesConfigs(lines: string[]) {
+  const seeds = []
+  const lobbyInfos = []
+  let latestLobbyInfo: string | null = null
+
+  for (const line of lines) {
+    if (line.includes('Client got lobbyInfo message')) {
+      latestLobbyInfo = line
+      continue
+    }
+    if (line.includes('Client got startGame message')) {
+      if (!latestLobbyInfo) continue
+      const lobbyInfo = parseLobbyInfo(latestLobbyInfo)
+      lobbyInfos.push(lobbyInfo)
+    }
+    if (line.includes('Client got receiveEndGameJokers message')) {
+      const match = line.match(/seed: ([A-Z0-9]+)/)
+      if (match) {
+        const seed = match[1]
+        seeds.push(seed)
+      }
+    }
+  }
+  return { seeds, lobbyInfos }
+}
+
+type LogEntry = {
+  timestamp: Date
+  level: string
+  context: string
+  message: string
+  hostHash: string[]
+  guestHash: string[]
+  action: string
+  guestCached: boolean
+  hostCached: boolean
+  guest: string
+  host: string
+  isHost: boolean
+}
+
+function parseLobbyInfo(line: string) {
+  const regex =
+    /^(INFO|ERROR|WARN|DEBUG) - \[(\w+)\] (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) :: (\w+) :: (\w+) :: (.+)$/
+  const matches = line.match(regex)
+
+  if (!matches || matches.length < 7) {
+    throw new Error('Invalid log line format')
+  }
+
+  const [, level, context, timestampStr, type, category, message] = matches
+
+  if (!timestampStr || !level || !context || !message) {
+    throw new Error('Missing required log components')
+  }
+
+  const entry: LogEntry = {
+    timestamp: new Date(timestampStr),
+    level,
+    context,
+    message,
+    hostHash: [],
+    guestHash: [],
+    action: '',
+    guestCached: false,
+    hostCached: false,
+    guest: '',
+    host: '',
+    isHost: false,
+  }
+
+  const pairs = message.match(/\(([^)]+)\)/g) || []
+  for (const pair of pairs) {
+    const keyValue = pair.slice(1, -1).split(': ')
+    if (keyValue.length !== 2) continue
+
+    const [key, value] = keyValue.map((s) => s.trim())
+    if (!value || !key) {
+      continue
+    }
+    switch (key) {
+      case 'hostHash':
+      case 'guestHash':
+        ;(entry[key] as string[]) = value.split(';')
+        break
+      case 'guestCached':
+      case 'hostCached':
+      case 'isHost':
+        ;(entry[key] as boolean) = value.toLowerCase() === 'true'
+        break
+      default:
+        if (key in entry) {
+          ;(entry[key as keyof LogEntry] as string) = value
+        }
+    }
+  }
+
+  return entry
+}
+
+function boolStrToText(str: string | undefined | null) {
+  if (!str) {
+    return 'Unknown'
+  }
+  if (str === 'true') {
+    return 'Yes'
+  }
+  if (str === 'false') {
+    return 'No'
+  }
+  return str
 }
