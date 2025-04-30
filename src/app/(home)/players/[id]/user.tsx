@@ -105,7 +105,11 @@ export function UserInfo() {
         ? filteredGamesByLeaderboard.filter((game) => game.result === 'win')
         : filter === 'losses'
           ? filteredGamesByLeaderboard.filter((game) => game.result === 'loss')
-          : filteredGamesByLeaderboard.filter((game) => game.result === 'tie')
+          : filter === 'wins-and-losses'
+            ? filteredGamesByLeaderboard.filter(
+                (game) => game.result === 'win' || game.result === 'loss'
+              )
+            : filteredGamesByLeaderboard.filter((game) => game.result === 'tie')
 
   const games_played = games.length
   let wins = 0
@@ -392,6 +396,9 @@ export function UserInfo() {
                   <SelectItem value='wins'>Wins</SelectItem>
                   <SelectItem value='losses'>Losses</SelectItem>
                   <SelectItem value='ties'>Ties</SelectItem>
+                  <SelectItem value='wins-and-losses'>
+                    Wins and Losses
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
