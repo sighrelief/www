@@ -315,6 +315,20 @@ export default function LogParser() {
               type: 'event',
             })
           }
+        } else if (line.includes('boughtCardFromShop')) {
+          const match = line.match(/card:([^,\n]+)/i)
+          if (match) {
+            const raw = match[1] ? match[1].trim() : ''
+            const clean = raw.replace(/^(c_mp_|j_mp_)/, '')
+            lines.push({ text: `Bought ${clean}`, type: 'event' })
+          }
+        } else if (line.includes('rerollShop')) {
+          const match = line.match(/cost:([^,\n]+)/i)
+          if (match) {
+            const cost = match[1] ? match[1].trim() : ''
+
+            lines.push({ text: `Reroll for $${cost}`, type: 'event' })
+          }
         } else if (lineLower.includes('usedcard')) {
           const match = line.match(/card:([^,\n]+)/i)
           if (match) {
