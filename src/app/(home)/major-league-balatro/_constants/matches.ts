@@ -234,7 +234,9 @@ export const matches: Match[] = [
     player1Id: 'zainotv',
     player2Id: 'neato',
     datetime: new Date('2025-05-01T17:00:00-04:00'),
-    completed: false,
+    completed: true,
+    vod1: 'https://www.twitch.tv/videos/2447750952?t=0h39m21s',
+    vod2: 'https://www.twitch.tv/videos/2447764756?t=0h20m21s',
     week: 4,
   },
   {
@@ -243,7 +245,9 @@ export const matches: Match[] = [
     player1Id: 'drspectred',
     player2Id: 'edzy',
     datetime: new Date('2025-05-01T15:00:00-04:00'),
-    completed: false,
+    completed: true,
+    vod1: 'https://www.twitch.tv/videos/2447668918?t=0h6m19s',
+    vod2: 'https://www.twitch.tv/videos/2447512921?t=3h35m15s',
     week: 4,
   },
   {
@@ -252,7 +256,9 @@ export const matches: Match[] = [
     player1Id: 'malf',
     player2Id: 'nandre',
     datetime: new Date('2025-05-02T13:00:00-04:00'),
-    completed: false,
+    completed: true,
+    vod1: 'https://www.twitch.tv/videos/2448394137?t=1h12m2s',
+    vod2: 'https://www.twitch.tv/videos/2448423515?t=0h30m09s',
     week: 4,
   },
   {
@@ -265,47 +271,47 @@ export const matches: Match[] = [
     week: 4,
   },
 
-  // // Week 5
-  // {
-  //   id: 25,
-  //   division: 'Blue',
-  //   player1Id: 'roffle',
-  //   player2Id: 'neato',
-  //
-  //   datetime: new Date('2025-05-05T17:00:00-04:00'),
-  //   completed: false,
-  //   week: 5,
-  // },
-  // {
-  //   id: 26,
-  //   division: 'Blue',
-  //   player1Id: 'haelian',
-  //   player2Id: 'zainotv',
-  //
-  //   datetime: new Date('2025-05-07T15:00:00-04:00'),
-  //   completed: false,
-  //   week: 5,
-  // },
-  // {
-  //   id: 27,
-  //   division: 'Blue',
-  //   player1Id: 'bear',
-  //   player2Id: 'gothic',
-  //
-  //   datetime: new Date('2025-05-08T13:00:00-04:00'),
-  //   completed: false,
-  //   week: 5,
-  // },
-  // {
-  //   id: 28,
-  //   division: 'Red',
-  //   player1Id: 'drspectred',
-  //   player2Id: 'seadubbs',
-  //
-  //   datetime: new Date('2025-05-05T13:00:00-04:00'),
-  //   completed: false,
-  //   week: 5,
-  // },
+  // Week 5
+  {
+    id: 25,
+    division: 'Blue',
+    player1Id: 'roffle',
+    player2Id: 'neato',
+
+    datetime: new Date('2025-05-09T17:00:00-04:00'),
+    completed: false,
+    week: 5,
+  },
+  {
+    id: 26,
+    division: 'Blue',
+    player1Id: 'haelian',
+    player2Id: 'zainotv',
+
+    datetime: new Date('2025-05-07T17:00:00-04:00'),
+    completed: false,
+    week: 5,
+  },
+  {
+    id: 27,
+    division: 'Blue',
+    player1Id: 'bear',
+    player2Id: 'gothic',
+
+    datetime: new Date('2025-05-07T14:00:00-04:00'),
+    completed: false,
+    week: 5,
+  },
+  {
+    id: 28,
+    division: 'Red',
+    player1Id: 'drspectred',
+    player2Id: 'seadubbs',
+
+    datetime: new Date('2025-05-09T19:30:00-04:00'),
+    completed: false,
+    week: 5,
+  },
   // {
   //   id: 29,
   //   division: 'Red',
@@ -316,16 +322,16 @@ export const matches: Match[] = [
   //   completed: false,
   //   week: 5,
   // },
-  // {
-  //   id: 30,
-  //   division: 'Red',
-  //   player1Id: 'nandre',
-  //   player2Id: 'edzy',
-  //
-  //   datetime: new Date('2025-05-09T18:30:00-04:00'),
-  //   completed: false,
-  //   week: 5,
-  // },
+  {
+    id: 30,
+    division: 'Red',
+    player1Id: 'nandre',
+    player2Id: 'edzy',
+
+    datetime: new Date('2025-05-06T15:00:00-04:00'),
+    completed: false,
+    week: 5,
+  },
   //
   // // Play-in Week
   // {

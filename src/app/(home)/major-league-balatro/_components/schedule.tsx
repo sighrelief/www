@@ -29,9 +29,9 @@ const WEEK_CONFIG: Record<string | number, WeekConfig> = {
   4: {
     label: 'Week 4: April 27-May 3, 2025',
   },
-  // 5: {
-  //   label: 'Week 5: May 4-10, 2025',
-  // },
+  5: {
+    label: 'Week 5: May 4-10, 2025',
+  },
   // 'Play-in': {
   //   label: 'Play-in Week: May 11-16, 2025',
   //   status: 'playoff',
