@@ -1,22 +1,12 @@
 import { GithubLinks } from '@/app/_components/github-links'
-import { ModeToggle } from '@/components/mode-toggle'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { SiGithub } from '@icons-pack/react-simple-icons'
-import {
-  Award,
-  BookOpen,
-  ChevronRight,
-  Info,
-  Menu,
-  MessageSquare,
-  Trophy,
-  Users,
-} from 'lucide-react'
+import { ChevronRight, MessageSquare, Trophy, Users } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+
 export default function Home() {
   return (
     <div className='flex min-h-screen flex-col'>

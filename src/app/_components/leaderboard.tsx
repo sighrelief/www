@@ -348,6 +348,7 @@ function RawLeaderboardTable({
         <Table>
           <TableHeader className='sticky top-0 z-10 bg-white dark:bg-zinc-900'>
             <TableRow className='bg-gray-50 dark:bg-zinc-800/50'>
+              <TableHead className='w-[40px] text-right'>#</TableHead>
               <TableHead className='w-[80px]'>
                 <SortableHeader
                   className='w-full justify-end'
@@ -468,6 +469,9 @@ function RawLeaderboardTable({
                         'transition-colors hover:bg-gray-50 dark:hover:bg-zinc-800/70'
                       )}
                     >
+                      <TableCell className='w-10 text-right font-medium'>
+                        {virtualRow.index + 1}
+                      </TableCell>
                       <TableCell className='w-28 font-medium'>
                         <div className='flex items-center justify-end gap-1.5 pr-4.5 font-mono'>
                           <span className={cn(entry.rank < 10 && 'ml-[1ch]')}>
