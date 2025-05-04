@@ -1,6 +1,6 @@
 ---
 title: Private Server Setup
-description: Learn how to set up a private Balatro Multiplayer server for your friends to connect to.
+description: Learn how to set up a private Balatro Multiplayer server.
 ---
 
 import {Tab, Tabs} from 'fumadocs-ui/components/tabs';
@@ -8,39 +8,52 @@ import {File, Folder, Files} from 'fumadocs-ui/components/files';
 
 ## Starting a server
 
-In each of the mod file folders we provide server files as well (one for each operating system), you can use these files to run your own server.
+In each release we provide server files (one for each operating system). You can use these files to run your own server.
 
-<Tabs items={['Windows', 'Mac/Linux']}>
+<Tabs items={['Windows', 'Mac', 'Linux']}>
 	<Tab value="Windows">
-		Download `server-win.exe` and run that file.
+		Simply download `server-win.exe` from the [latest release](https://github.com/Balatro-Multiplayer/BalatroMultiplayer/releases/latest) and run it.
 	</Tab>
-	<Tab value="Mac/Linux">
-		Download `server-mac`. Once you download that open terminal and navigate to where that file is
-		by running
+	<Tab value="Mac">
+		Download `server-macos` from the [latest release](https://github.com/Balatro-Multiplayer/BalatroMultiplayer/releases/latest). Once you download the file, open terminal and navigate to the file:
 		```sh
-		cd /path/to/directory/where/server-mac/is
+		cd /path/to/where/server-linux/is
 		```
 
-		Then, run
+		You then have to make the server file executable as program, you can do this via cli by running:
 		```sh
-		chmod +x server-mac
+		chmod +x server-macos
 		```
 
-		After that you can run
-
+		To start the server, simply run the program. You can do this by running the following in the folder where the server executable is stored:
 		```sh
-		./server-mac
+		./server-macos
 		```
-		to run the server.
+	</Tab>
+	<Tab value="Linux">
+		Download `server-linux` from the [latest release](https://github.com/Balatro-Multiplayer/BalatroMultiplayer/releases/latest). Once you download the file, open terminal and navigate to the file:
+		```sh
+		cd /path/to/where/server-linux/is
+		```
+
+		You then have to make the server file executable as program, you can do this via cli by running:
+		```sh
+		chmod +x server-linux
+		```
+
+		To start the server, simply run the program. You can do this by running the following in the folder where the server executable is stored:
+		```sh
+		./server-linux
+		```
 	</Tab>
 </Tabs>
 
 ## Connecting to the server
 
-Once the server is running you will have to modify your config to point to the server.
-To modify your config go to the location where your `Mods` folder is,
-beside that folder will be another folder called `config`, inside the `config` folder will be a file called `Multiplayer.jkr`.
-If this file is not there for you then you need to launch the game with the Multiplayer mod installed at least once.
+Once the server is running, players will have to modify their configs to point to the server.
+To modify your config, go to Balatro's save folder (where the `Mods` folder isalso located). On Windows this is `%AppData%/Balatro`.
+Inside the `config` folder will be a file called `Multiplayer.jkr`.
+If this file is not there, then you will need to launch the game with the Multiplayer mod installed at least once.
 
 <Files>
 	<Folder name="Mods">
@@ -52,18 +65,25 @@ If this file is not there for you then you need to launch the game with the Mult
 
 </Files>
 
-The contents of this file will look something like this by default:
+The contents of `Multiplayer.jkr` is lua script, and will look something like this by default:
 
 ```lua
 return {
-    ["username"] = "Guest",
-    ["server_url"] = "balatro.virtualized.dev",
-    ["server_port"] = 8788,
+	["misprint_display"] = true,
+	["logging"] = false,
+	["integrations"] = {
+		["TheOrder"] = false,
+	},
+	["username"] = "Guest",
+	["server_url"] = "balatro.virtualized.dev",
+	["server_port"] = 8788,
 }
 ```
 
-If you are running the server on your computer you can change the `server_url` field to `"localhost"`,
-but your friends will have to connect to you over the internet or through a tunnel service like Hamachi or ZeroTier.
+If you are running the server over LAN, you can change the `["server_url"]` field to `"localhost"`.
 
-For them to connect over the internet you will have to port forward port `8788` on your PC and router,
-then they will have to input your public IP address in the `server_url`. You can find your public IP address by going to a site like this: https://www.whatismyip.com.
+If you want to host the server over the internet, you will have to forward the port defined in the `["server_port"]` field, which is `8788` by default.
+Those whom want to connect to you will have to input your public IP address in the `["server_url"]` field.
+An easy way to find your public IP address is by visitng https://www.whatismyip.com.
+
+If you would like to avoid port forwarding or can't for whatever reason, players will have to connect to you through a tunnel service like Hamachi, ZeroTier, or Tailscale.
